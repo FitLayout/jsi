@@ -24,40 +24,48 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 /**
  * Allows build properties to be retrieved at runtime. Currently, version and
  * scmRevisionId are implemented.
  */
-public class BuildProperties {
-  private static final Logger log = LoggerFactory.getLogger(BuildProperties.class);  
-  private static final BuildProperties instance = new BuildProperties();
-  
-  private String version = null;
-  private String scmRevisionId = null;
-  
-  private BuildProperties() {
-    Properties p = new Properties();
-    try {
-      p.load(getClass().getClassLoader().getResourceAsStream("build.properties"));
-      version = p.getProperty("version", "");
-      scmRevisionId = p.getProperty("scmRevisionId", "");
-    } catch (IOException e) {
-      log.warn("Unable to read from build.properties");
-    }
-  }
-  
-  /**
-   * Version number as specified in pom.xml
-   */
-  public static String getVersion() {
-    return instance.version;
-  }
-  
-  
-  /**
-   * SCM revision ID. This is the git commit ID.
-   */
-  public static String getScmRevisionId() {
-    return instance.scmRevisionId;
-  }
+public class BuildProperties
+{
+	private static final Logger log = LoggerFactory.getLogger(BuildProperties.class);
+	private static final BuildProperties instance = new BuildProperties();
+
+	private String version = null;
+	private String scmRevisionId = null;
+
+
+	private BuildProperties()
+	{
+		Properties p = new Properties();
+		try {
+			p.load(getClass().getClassLoader().getResourceAsStream("build.properties"));
+			version = p.getProperty("version", "");
+			scmRevisionId = p.getProperty("scmRevisionId", "");
+		}
+		catch (IOException e) {
+			log.warn("Unable to read from build.properties");
+		}
+	}
+
+
+	/**
+	 * Version number as specified in pom.xml
+	 */
+	public static String getVersion()
+	{
+		return instance.version;
+	}
+
+
+	/**
+	 * SCM revision ID. This is the git commit ID.
+	 */
+	public static String getScmRevisionId()
+	{
+		return instance.scmRevisionId;
+	}
 }
