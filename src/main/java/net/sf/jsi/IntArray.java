@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
-import java.util.EmptyStackException;
 
 import net.sf.jsi.RTree.AreaCallback;
 
@@ -91,28 +90,27 @@ final class IntArray implements Externalizable
 	}
 
 	
-	public int peek() throws EmptyStackException
+	public int peek() throws ArrayIndexOutOfBoundsException
 	{
-		if ( _size==0 ) throw new EmptyStackException();
 		return _data[_size - 1];
 	}
 	
 	
-	public int pop() throws EmptyStackException
+	public int pop() throws ArrayIndexOutOfBoundsException
 	{
-		if ( _size==0 ) throw new EmptyStackException();
+		if ( _size==0 ) throw new ArrayIndexOutOfBoundsException(-1);
 		return _data[--_size];
 	}
 	
 	
-	public int get(int index) throws IndexOutOfBoundsException
+	public int get(int index) throws ArrayIndexOutOfBoundsException
 	{
 		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
 		return _data[index];
 	}
 
 	
-	public int set(int index, int value) throws IndexOutOfBoundsException
+	public int set(int index, int value) throws ArrayIndexOutOfBoundsException
 	{
 		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
 		int old = _data[index];
@@ -139,7 +137,7 @@ final class IntArray implements Externalizable
 	
 	
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	public void readExternal(ObjectInput in) throws IOException
 	{
 		_size = in.readInt();
 		_data = _size==0 ? EMPTY : new int[_size];

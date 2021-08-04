@@ -21,7 +21,6 @@ import java.io.IOException;
 import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
-import java.util.EmptyStackException;
 import java.util.function.DoublePredicate;
 
 /**
@@ -90,28 +89,27 @@ final class FloatArray implements Externalizable
 	}
 
 	
-	public float peek() throws EmptyStackException
+	public float peek() throws ArrayIndexOutOfBoundsException
 	{
-		if ( _size==0 ) throw new EmptyStackException();
 		return _data[_size - 1];
 	}
 	
 	
-	public float pop() throws EmptyStackException
+	public float pop() throws ArrayIndexOutOfBoundsException
 	{
-		if ( _size==0 ) throw new EmptyStackException();
+		if ( _size==0 ) throw new ArrayIndexOutOfBoundsException(-1);
 		return _data[--_size];
 	}
 	
 	
-	public float get(int index) throws IndexOutOfBoundsException
+	public float get(int index) throws ArrayIndexOutOfBoundsException
 	{
 		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
 		return _data[index];
 	}
 
 	
-	public float set(int index, float value) throws IndexOutOfBoundsException
+	public float set(int index, float value) throws ArrayIndexOutOfBoundsException
 	{
 		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
 		float old = _data[index];
@@ -138,7 +136,7 @@ final class FloatArray implements Externalizable
 	
 	
 	@Override
-	public void readExternal(ObjectInput in) throws IOException, ClassNotFoundException
+	public void readExternal(ObjectInput in) throws IOException
 	{
 		_size = in.readInt();
 		_data = _size==0 ? EMPTY : new float[_size];
