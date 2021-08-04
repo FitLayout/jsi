@@ -42,7 +42,7 @@ import java.util.logging.Logger;
  * <p>
  * The main reason for the high speed of this RTree implementation is the
  * avoidance of the creation of unnecessary objects, mainly achieved by using
- * primitive collections from the trove4j library.
+ * primitive collections.
  * </p>
  */
 public class RTree implements Serializable
