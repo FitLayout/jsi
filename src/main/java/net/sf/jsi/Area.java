@@ -21,7 +21,7 @@ package net.sf.jsi;
 /**
  * Currently hardcoded to 2 dimensions, but could be extended.
  */
-public class Rectangle
+public class Area
 {
 
 	/**
@@ -31,7 +31,7 @@ public class Rectangle
 	public float minX, minY, maxX, maxY;
 
 
-	public Rectangle()
+	public Area()
 	{
 		minX = Float.MAX_VALUE;
 		minY = Float.MAX_VALUE;
@@ -48,7 +48,7 @@ public class Rectangle
 	 * @param x2 coordinate of the opposite corner
 	 * @param y2 (see x2)
 	 */
-	public Rectangle(float x1, float y1, float x2, float y2)
+	public Area(float x1, float y1, float x2, float y2)
 	{
 		set(x1, y1, x2, y2);
 	}
@@ -74,7 +74,7 @@ public class Rectangle
 	/**
 	 * Sets the size of this rectangle to equal the passed rectangle.
 	 */
-	public void set(Rectangle r)
+	public void set(Area r)
 	{
 		minX = r.minX;
 		minY = r.minY;
@@ -88,9 +88,9 @@ public class Rectangle
 	 *
 	 * @return copy of this rectangle
 	 */
-	public Rectangle copy()
+	public Area copy()
 	{
-		return new Rectangle(minX, minY, maxX, maxY);
+		return new Area(minX, minY, maxX, maxY);
 	}
 
 
@@ -98,7 +98,7 @@ public class Rectangle
 	 * Determine whether an edge of this rectangle overlies the equivalent
 	 * edge of the passed rectangle
 	 */
-	public boolean edgeOverlaps(Rectangle r)
+	public boolean edgeOverlaps(Area r)
 	{
 		return minX == r.minX || maxX == r.maxX || minY == r.minY || maxY == r.maxY;
 	}
@@ -111,7 +111,7 @@ public class Rectangle
 	 *
 	 * @return true if the rectangles intersect, false if they do not intersect
 	 */
-	public boolean intersects(Rectangle r)
+	public boolean intersects(Area r)
 	{
 		return maxX >= r.minX && minX <= r.maxX && maxY >= r.minY && minY <= r.maxY;
 	}
@@ -145,7 +145,7 @@ public class Rectangle
 	 * @return true if this rectangle contains the passed rectangle, false if
 	 *         it does not
 	 */
-	public boolean contains(Rectangle r)
+	public boolean contains(Area r)
 	{
 		return maxX >= r.maxX && minX <= r.minX && maxY >= r.maxY && minY <= r.minY;
 	}
@@ -179,7 +179,7 @@ public class Rectangle
 	 * @return true if the passed rectangle contains this rectangle, false if
 	 *         it does not
 	 */
-	public boolean containedBy(Rectangle r)
+	public boolean containedBy(Area r)
 	{
 		return r.maxX >= maxX && r.minX <= minX && r.maxY >= maxY && r.minY <= minY;
 	}
@@ -193,7 +193,7 @@ public class Rectangle
 	 *
 	 * @return distance beween this rectangle and the passed point.
 	 */
-	public float distance(Point p)
+	public float distance(Spot p)
 	{
 		float distanceSquared = 0;
 
@@ -272,7 +272,7 @@ public class Rectangle
 	 * @return distance between this rectangle and the passed rectangle
 	 */
 
-	public float distance(Rectangle r)
+	public float distance(Area r)
 	{
 		float distanceSquared = 0;
 		float greatestMin = Math.max(minX, r.minX);
@@ -299,7 +299,7 @@ public class Rectangle
 	 *
 	 * @return enlargement
 	 */
-	public float enlargement(Rectangle r)
+	public float enlargement(Area r)
 	{
 		float enlargedArea = (Math.max(maxX, r.maxX) - Math.min(minX, r.minX)) * (Math.max(maxY, r.maxY) - Math.min(minY, r.minY));
 
@@ -379,7 +379,7 @@ public class Rectangle
 	 *
 	 * @param r Rectangle to add to this rectangle
 	 */
-	public void add(Rectangle r)
+	public void add(Area r)
 	{
 		if ( r.minX < minX ) minX = r.minX;
 		if ( r.maxX > maxX ) maxX = r.maxX;
@@ -394,7 +394,7 @@ public class Rectangle
 	 *
 	 * @param p Point to add to this rectangle
 	 */
-	public void add(Point p)
+	public void add(Spot p)
 	{
 		if ( p.x < minX ) minX = p.x;
 		if ( p.x > maxX ) maxX = p.x;
@@ -409,9 +409,9 @@ public class Rectangle
 	 *
 	 * @param r The rectangle to union with this rectangle
 	 */
-	public Rectangle union(Rectangle r)
+	public Area union(Area r)
 	{
-		Rectangle union = this.copy();
+		Area union = this.copy();
 		union.add(r);
 		return union;
 	}
@@ -440,8 +440,8 @@ public class Rectangle
 	public boolean equals(Object o)
 	{
 		boolean equals = false;
-		if ( o instanceof Rectangle ) {
-			Rectangle r = (Rectangle)o;
+		if ( o instanceof Area ) {
+			Area r = (Area)o;
 			if ( minX == r.minX && minY == r.minY && maxX == r.maxX && maxY == r.maxY ) {
 				equals = true;
 			}
@@ -499,9 +499,9 @@ public class Rectangle
 	}
 
 
-	public Point centre()
+	public Spot centre()
 	{
-		return new Point((minX + maxX) / 2, (minY + maxY) / 2);
+		return new Spot((minX + maxX) / 2, (minY + maxY) / 2);
 	}
 
 }

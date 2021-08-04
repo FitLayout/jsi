@@ -52,14 +52,14 @@ public class PerformanceTest {
     return (r.nextFloat() * (max - min)) + min;
   }
 
-  protected Point randomPoint(Random r) {
-    return new Point(randomFloat(r, 0, 100), randomFloat(r, 0, 100));
+  protected Spot randomPoint(Random r) {
+    return new Spot(randomFloat(r, 0, 100), randomFloat(r, 0, 100));
   }
 
-  private Rectangle randomRectangle(Random r, float size) {
+  private Area randomRectangle(Random r, float size) {
     float x = randomFloat(r, 0, 100);
     float y = randomFloat(r, 0, 100);
-    return new Rectangle(x, y, x + randomFloat(r, 0, size), y + randomFloat(r, 0, size));
+    return new Area(x, y, x + randomFloat(r, 0, size), y + randomFloat(r, 0, size));
   }
 
   abstract class Operation {
@@ -114,7 +114,7 @@ public class PerformanceTest {
     si.init(p);
 
     final int rectangleCount = 1000000;
-    final Rectangle[] rects = new Rectangle[rectangleCount];
+    final Area[] rects = new Area[rectangleCount];
     for (int i = 0; i < rectangleCount; i++) {
       rects[i] = randomRectangle(rand, 0.01f);
     }

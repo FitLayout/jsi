@@ -36,45 +36,45 @@ public class NullIndex implements SpatialIndex {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#nearest(Point, gnu.trove.TIntProcedure, float)
+   * @see net.sf.jsi.SpatialIndex#nearest(Spot, gnu.trove.TIntProcedure, float)
    */
-  public void nearest(Point p, TIntProcedure v, float distance) {
+  public void nearest(Spot p, TIntProcedure v, float distance) {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestN(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestN(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestN(Point p, TIntProcedure v, int n, float distance) {
+  public void nearestN(Spot p, TIntProcedure v, int n, float distance) {
   }
  
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestNUnsorted(Point p, TIntProcedure v, int n, float distance) {
+  public void nearestNUnsorted(Spot p, TIntProcedure v, int n, float distance) {
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#intersects(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#intersects(Area, gnu.trove.TIntProcedure)
    */
-  public void intersects(Rectangle r, TIntProcedure ip) {
+  public void intersects(Area r, TIntProcedure ip) {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#contains(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#contains(Area, gnu.trove.TIntProcedure)
    */
-  public void contains(Rectangle r, TIntProcedure ip) {
+  public void contains(Area r, TIntProcedure ip) {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#add(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#add(Area, int)
    */
-  public void add(Rectangle r, int id) {
+  public void add(Area r, int id) {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#delete(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#delete(Area, int)
    */
-  public boolean delete(Rectangle r, int id) {
+  public boolean delete(Area r, int id) {
     return false;
   }
 
@@ -88,7 +88,7 @@ public class NullIndex implements SpatialIndex {
   /**
    * @see net.sf.jsi.SpatialIndex#getBounds()
    */
-  public Rectangle getBounds() {
+  public Area getBounds() {
     return null; 
   }
 

@@ -172,9 +172,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#add(Rectangle, int)
+	 * @see net.sf.jsi.SpatialIndex#add(Area, int)
 	 */
-	public void add(Rectangle r, int id)
+	public void add(Area r, int id)
 	{
 		if ( log.isDebugEnabled() ) {
 			log.debug("Adding rectangle " + r + ", id " + id);
@@ -230,9 +230,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#delete(Rectangle, int)
+	 * @see net.sf.jsi.SpatialIndex#delete(Area, int)
 	 */
-	public boolean delete(Rectangle r, int id)
+	public boolean delete(Area r, int id)
 	{
 		// FindLeaf algorithm inlined here. Note the "official" algorithm
 		// searches all overlapping entries. This seems inefficient to me,
@@ -261,7 +261,7 @@ public class RTree implements SpatialIndex, Serializable
 				deleteLog.debug("searching node " + n.nodeId + ", from index " + startIndex);
 				boolean contains = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Rectangle.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], r.minX, r.minY, r.maxX, r.maxY) ) {
+					if ( Area.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], r.minX, r.minY, r.maxX, r.maxY) ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
@@ -317,9 +317,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearest(Point, TIntProcedure, float)
+	 * @see net.sf.jsi.SpatialIndex#nearest(Spot, TIntProcedure, float)
 	 */
-	public void nearest(Point p, TIntProcedure v, float furthestDistance)
+	public void nearest(Spot p, TIntProcedure v, float furthestDistance)
 	{
 		Node rootNode = getNode(rootNodeId);
 
@@ -332,7 +332,7 @@ public class RTree implements SpatialIndex, Serializable
 	}
 
 
-	private void createNearestNDistanceQueue(Point p, int count, PriorityQueue distanceQueue, float furthestDistance)
+	private void createNearestNDistanceQueue(Spot p, int count, PriorityQueue distanceQueue, float furthestDistance)
 	{
 		// return immediately if given an invalid "count" parameter
 		if ( count <= 0 ) {
@@ -363,7 +363,7 @@ public class RTree implements SpatialIndex, Serializable
 				// currently stored.
 				boolean near = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Rectangle.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y) <= furthestDistanceSq ) {
+					if ( Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y) <= furthestDistanceSq ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
@@ -379,7 +379,7 @@ public class RTree implements SpatialIndex, Serializable
 				// go through every entry in the leaf to check if
 				// it is currently one of the nearest N entries.
 				for ( int i = 0; i < n.entryCount; i++ ) {
-					float entryDistanceSq = Rectangle.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
+					float entryDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
 					int entryId = n.ids[i];
 
 					if ( entryDistanceSq <= furthestDistanceSq ) {
@@ -423,9 +423,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Point, TIntProcedure, int, float)
+	 * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, TIntProcedure, int, float)
 	 */
-	public void nearestNUnsorted(Point p, TIntProcedure v, int count, float furthestDistance)
+	public void nearestNUnsorted(Spot p, TIntProcedure v, int count, float furthestDistance)
 	{
 		// This implementation is designed to give good performance
 		// where
@@ -447,9 +447,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearestN(Point, TIntProcedure, int, float)
+	 * @see net.sf.jsi.SpatialIndex#nearestN(Spot, TIntProcedure, int, float)
 	 */
-	public void nearestN(Point p, TIntProcedure v, int count, float furthestDistance)
+	public void nearestN(Spot p, TIntProcedure v, int count, float furthestDistance)
 	{
 		PriorityQueue distanceQueue = new PriorityQueue(PriorityQueue.SORT_ORDER_DESCENDING);
 		createNearestNDistanceQueue(p, count, distanceQueue, furthestDistance);
@@ -463,9 +463,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#intersects(Rectangle, TIntProcedure)
+	 * @see net.sf.jsi.SpatialIndex#intersects(Area, TIntProcedure)
 	 */
-	public void intersects(Rectangle r, TIntProcedure v)
+	public void intersects(Area r, TIntProcedure v)
 	{
 		Node rootNode = getNode(rootNodeId);
 		intersects(r, v, rootNode);
@@ -473,9 +473,9 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#contains(Rectangle, TIntProcedure)
+	 * @see net.sf.jsi.SpatialIndex#contains(Area, TIntProcedure)
 	 */
-	public void contains(Rectangle r, TIntProcedure v)
+	public void contains(Area r, TIntProcedure v)
 	{
 		// find all rectangles in the tree that are contained by the passed rectangle
 		// written to be non-recursive (should model other searches on this?)
@@ -498,7 +498,7 @@ public class RTree implements SpatialIndex, Serializable
 				// could contain entries that are contained.
 				boolean intersects = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Rectangle.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
+					if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
@@ -514,7 +514,7 @@ public class RTree implements SpatialIndex, Serializable
 				// go through every entry in the leaf to check if
 				// it is contained by the passed rectangle
 				for ( int i = 0; i < n.entryCount; i++ ) {
-					if ( Rectangle.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
+					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 						if ( !v.execute(n.ids[i]) ) {
 							return;
 						}
@@ -539,13 +539,13 @@ public class RTree implements SpatialIndex, Serializable
 	/**
 	 * @see net.sf.jsi.SpatialIndex#getBounds()
 	 */
-	public Rectangle getBounds()
+	public Area getBounds()
 	{
-		Rectangle bounds = null;
+		Area bounds = null;
 
 		Node n = getNode(getRootNodeId());
 		if ( n != null && n.entryCount > 0 ) {
-			bounds = new Rectangle();
+			bounds = new Area();
 			bounds.minX = n.mbrMinX;
 			bounds.minY = n.mbrMinY;
 			bounds.maxX = n.mbrMaxX;
@@ -685,11 +685,11 @@ public class RTree implements SpatialIndex, Serializable
 
 		// check that the MBR stored for each node is correct.
 		if ( INTERNAL_CONSISTENCY_CHECKING ) {
-			Rectangle nMBR = new Rectangle(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
+			Area nMBR = new Area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
 			if ( !nMBR.equals(calculateMBR(n)) ) {
 				log.error("Error: splitNode old node MBR wrong");
 			}
-			Rectangle newNodeMBR = new Rectangle(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
+			Area newNodeMBR = new Area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
 			if ( !newNodeMBR.equals(calculateMBR(newNode)) ) {
 				log.error("Error: splitNode new node MBR wrong");
 			}
@@ -697,8 +697,8 @@ public class RTree implements SpatialIndex, Serializable
 
 		// debug code
 		if ( log.isDebugEnabled() ) {
-			float newArea = Rectangle.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY)
-				+ Rectangle.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
+			float newArea = Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY)
+				+ Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
 			float percentageIncrease = (100 * (newArea - initialArea)) / initialArea;
 			log.debug("Node " + n.nodeId + " split. New area increased by " + percentageIncrease + "%");
 		}
@@ -899,9 +899,9 @@ public class RTree implements SpatialIndex, Serializable
 					log.error("Error: Node " + n.nodeId + ", entry " + i + " is null");
 				}
 
-				float nIncrease = Rectangle.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
+				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
 					n.entriesMaxY[i]);
-				float newNodeIncrease = Rectangle.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, n.entriesMinX[i],
+				float newNodeIncrease = Area.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, n.entriesMinX[i],
 					n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]);
 
 				float difference = Math.abs(nIncrease - newNodeIncrease);
@@ -913,10 +913,10 @@ public class RTree implements SpatialIndex, Serializable
 						nextGroup = 0;
 					} else if ( newNodeIncrease < nIncrease ) {
 						nextGroup = 1;
-					} else if ( Rectangle.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY) < Rectangle.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX,
+					} else if ( Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY) < Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX,
 						newNode.mbrMaxY) ) {
 						nextGroup = 0;
-					} else if ( Rectangle.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY) < Rectangle.area(n.mbrMinX, n.mbrMinY,
+					} else if ( Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY) < Area.area(n.mbrMinX, n.mbrMinY,
 						n.mbrMaxX, n.mbrMaxY) ) {
 						nextGroup = 1;
 					} else if ( newNode.entryCount < maxNodeEntries / 2 ) {
@@ -960,10 +960,10 @@ public class RTree implements SpatialIndex, Serializable
 	 * entry IDs (it is an array, rather than a single value, in case
 	 * multiple entries are equally near)
 	 */
-	private float nearest(Point p, Node n, float furthestDistanceSq, TIntArrayList nearestIds)
+	private float nearest(Spot p, Node n, float furthestDistanceSq, TIntArrayList nearestIds)
 	{
 		for ( int i = 0; i < n.entryCount; i++ ) {
-			float tempDistanceSq = Rectangle.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
+			float tempDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
 			if ( n.isLeaf() ) { // for leaves, the distance is an actual nearest distance
 				if ( tempDistanceSq < furthestDistanceSq ) {
 					furthestDistanceSq = tempDistanceSq;
@@ -992,10 +992,10 @@ public class RTree implements SpatialIndex, Serializable
 	 * TODO rewrite this to be non-recursive? Make sure it
 	 * doesn't slow it down.
 	 */
-	private boolean intersects(Rectangle r, TIntProcedure v, Node n)
+	private boolean intersects(Area r, TIntProcedure v, Node n)
 	{
 		for ( int i = 0; i < n.entryCount; i++ ) {
-			if ( Rectangle.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
+			if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 				if ( n.isLeaf() ) {
 					if ( !v.execute(n.ids[i]) ) {
 						return false;
@@ -1100,16 +1100,16 @@ public class RTree implements SpatialIndex, Serializable
 			// CL3 [Choose subtree] If N is not at the desired level, let F be the entry in N
 			// whose rectangle FI needs least enlargement to include EI. Resolve
 			// ties by choosing the entry with the rectangle of smaller area.
-			float leastEnlargement = Rectangle.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0], minX, minY, maxX, maxY);
+			float leastEnlargement = Area.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0], minX, minY, maxX, maxY);
 			int index = 0; // index of rectangle in subtree
 			for ( int i = 1; i < n.entryCount; i++ ) {
 				float tempMinX = n.entriesMinX[i];
 				float tempMinY = n.entriesMinY[i];
 				float tempMaxX = n.entriesMaxX[i];
 				float tempMaxY = n.entriesMaxY[i];
-				float tempEnlargement = Rectangle.enlargement(tempMinX, tempMinY, tempMaxX, tempMaxY, minX, minY, maxX, maxY);
-				if ( (tempEnlargement < leastEnlargement) || ((tempEnlargement == leastEnlargement) && (Rectangle.area(tempMinX, tempMinY, tempMaxX,
-					tempMaxY) < Rectangle.area(n.entriesMinX[index], n.entriesMinY[index], n.entriesMaxX[index], n.entriesMaxY[index]))) ) {
+				float tempEnlargement = Area.enlargement(tempMinX, tempMinY, tempMaxX, tempMaxY, minX, minY, maxX, maxY);
+				if ( (tempEnlargement < leastEnlargement) || ((tempEnlargement == leastEnlargement) && (Area.area(tempMinX, tempMinY, tempMaxX,
+					tempMaxY) < Area.area(n.entriesMinX[index], n.entriesMinY[index], n.entriesMaxX[index], n.entriesMaxY[index]))) ) {
 					index = i;
 					leastEnlargement = tempEnlargement;
 				}
@@ -1197,7 +1197,7 @@ public class RTree implements SpatialIndex, Serializable
 	}
 
 
-	private boolean checkConsistency(int nodeId, int expectedLevel, Rectangle expectedMBR)
+	private boolean checkConsistency(int nodeId, int expectedLevel, Area expectedMBR)
 	{
 		// go through the tree, and check that the internal data structures of
 		// the tree are not corrupted.
@@ -1222,8 +1222,8 @@ public class RTree implements SpatialIndex, Serializable
 			return false;
 		}
 
-		Rectangle calculatedMBR = calculateMBR(n);
-		Rectangle actualMBR = new Rectangle();
+		Area calculatedMBR = calculateMBR(n);
+		Area actualMBR = new Area();
 		actualMBR.minX = n.mbrMinX;
 		actualMBR.minY = n.mbrMinY;
 		actualMBR.maxX = n.mbrMaxX;
@@ -1255,7 +1255,7 @@ public class RTree implements SpatialIndex, Serializable
 			}
 
 			if ( n.level > 1 ) { // if not a leaf
-				if ( !checkConsistency(n.ids[i], n.level - 1, new Rectangle(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) ) {
+				if ( !checkConsistency(n.ids[i], n.level - 1, new Area(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) ) {
 					return false;
 				}
 			}
@@ -1268,9 +1268,9 @@ public class RTree implements SpatialIndex, Serializable
 	 * Given a node object, calculate the node MBR from it's entries.
 	 * Used in consistency checking
 	 */
-	private Rectangle calculateMBR(Node n)
+	private Area calculateMBR(Node n)
 	{
-		Rectangle mbr = new Rectangle();
+		Area mbr = new Area();
 
 		for ( int i = 0; i < n.entryCount; i++ ) {
 			if ( n.entriesMinX[i] < mbr.minX ) mbr.minX = n.entriesMinX[i];

@@ -56,7 +56,7 @@ public class ListDecorator {
    * @return List of IDs of rectangles that are nearest
    *         to the passed rectangle, ordered by distance (nearest first).
    */
-  public List<Integer> nearest(Point p, float furthestDistance) {
+  public List<Integer> nearest(Spot p, float furthestDistance) {
   	AddToListProcedure v = new AddToListProcedure();
     m_si.nearest(p, v, furthestDistance);	
     return v.getList();
@@ -73,7 +73,7 @@ public class ListDecorator {
    *         to the passed rectangle, ordered by distance (nearest first).
    *         If multiple rectangles have the same distance, order by ID.
    */
-  public List<Integer> nearestN(Point p, int maxCount, float furthestDistance) {
+  public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance) {
     AddToListProcedure v = new AddToListProcedure();
     m_si.nearestN(p, v, maxCount, furthestDistance); 
     return v.getList();
@@ -88,7 +88,7 @@ public class ListDecorator {
    * @return List of IDs of rectangles that intersect the passed
    *         rectangle.
    */
-  public List<Integer> intersects(Rectangle r) {
+  public List<Integer> intersects(Area r) {
   	AddToListProcedure v = new AddToListProcedure();
     m_si.intersects(r, v);	
     return v.getList();
@@ -103,7 +103,7 @@ public class ListDecorator {
    * @return Collection of IDs of rectangles that are contained by the
    *         passed rectangle.
    */
-  public List<Integer> contains(Rectangle r) {
+  public List<Integer> contains(Area r) {
   	AddToListProcedure v = new AddToListProcedure();
     m_si.contains(r, v);	
     return v.getList();

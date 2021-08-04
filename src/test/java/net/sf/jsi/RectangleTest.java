@@ -20,7 +20,7 @@ package net.sf.jsi;
 
 import junit.framework.TestCase;
 
-import net.sf.jsi.Rectangle;
+import net.sf.jsi.Area;
 
 /**
  * RectangleTest
@@ -39,13 +39,13 @@ public class RectangleTest extends TestCase {
   }
   
   public void testIntersects() {
-    Rectangle r0_0_0_0 = new Rectangle (0, 0, 0, 0);
-    Rectangle r1_1_1_1 = new Rectangle (1, 1, 1, 1);
-    Rectangle r2_2_6_6 = new Rectangle (2, 2, 6, 6);
-    Rectangle r3_3_7_5 = new Rectangle (3, 3, 7, 5);
-    Rectangle r3_3_5_7 = new Rectangle (3, 3, 5, 7);
-    Rectangle r1_3_5_5 = new Rectangle (1, 3, 5, 5);
-    Rectangle r3_1_5_5 = new Rectangle (3, 1, 5, 5);
+    Area r0_0_0_0 = new Area (0, 0, 0, 0);
+    Area r1_1_1_1 = new Area (1, 1, 1, 1);
+    Area r2_2_6_6 = new Area (2, 2, 6, 6);
+    Area r3_3_7_5 = new Area (3, 3, 7, 5);
+    Area r3_3_5_7 = new Area (3, 3, 5, 7);
+    Area r1_3_5_5 = new Area (1, 3, 5, 5);
+    Area r3_1_5_5 = new Area (3, 1, 5, 5);
    
     // A rectangle always intersects itself
     assertTrue(r0_0_0_0.intersects(r0_0_0_0));

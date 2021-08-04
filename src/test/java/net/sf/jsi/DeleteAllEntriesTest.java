@@ -27,7 +27,7 @@ import junit.framework.TestCase;
 
 public class DeleteAllEntriesTest extends TestCase {
 
-  Rectangle[] rects = null;
+  Area[] rects = null;
   
   class Counter implements TIntProcedure {
     public int count = 0;
@@ -46,11 +46,11 @@ public class DeleteAllEntriesTest extends TestCase {
     
     int numRects = 500;
     
-    rects = new Rectangle[numRects];
+    rects = new Area[numRects];
     Random r = new Random();
     r.setSeed(0);
     for (int i = 0; i < numRects; i+=1) {
-      rects[i] = new Rectangle(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat());
+      rects[i] = new Area(r.nextFloat(), r.nextFloat(), r.nextFloat(), r.nextFloat());
     }
     
     run(1, 2, numRects);
@@ -81,8 +81,8 @@ public class DeleteAllEntriesTest extends TestCase {
       assertTrue(rtree.checkConsistency());
       
       // check that we can make queries on an empty rtree without error.
-      Rectangle testRect = new Rectangle(1,2,3,4);
-      Point testPoint = new Point(1,2);
+      Area testRect = new Area(1,2,3,4);
+      Spot testPoint = new Spot(1,2);
       
       Counter counter = new Counter();
       rtree.intersects(testRect, counter);

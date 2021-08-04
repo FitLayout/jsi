@@ -82,13 +82,13 @@ public class Script {
     return (float) d;
   }
   
-  private Rectangle getRandomRectangle(Random r, float rectangleSize, float canvasSize, int quantizer) {
+  private Area getRandomRectangle(Random r, float rectangleSize, float canvasSize, int quantizer) {
     float x1 = quantize(r.nextGaussian() * canvasSize, quantizer);
     float y1 = quantize(r.nextGaussian() * canvasSize, quantizer);
     float x2 = x1 + quantize(r.nextGaussian() * rectangleSize, quantizer);
     float y2 = y1 + quantize(r.nextGaussian() * rectangleSize, quantizer);
     
-    return new Rectangle(x1, y1, x2, y2);
+    return new Area(x1, y1, x2, y2);
   }
               
   /**
@@ -207,7 +207,7 @@ public class Script {
             long startTime = System.currentTimeMillis();
                
             for (int id = startId; id < startId + count; id++) {
-              Rectangle r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
+              Area r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
               si.add(r, id);
             
               String outputLine = "  " + id + " " + r.toString() + " : OK";
@@ -227,7 +227,7 @@ public class Script {
             
             int successfulDeleteCount = 0;   
             for (int id = startId; id < startId + count; id++) {
-              Rectangle r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
+              Area r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
               boolean deleted = si.delete(r, id);
              
               if (deleted) {
@@ -254,7 +254,7 @@ public class Script {
               float x = (float) random.nextGaussian() * canvasSize;
               float y = (float) random.nextGaussian() * canvasSize;
               
-              List<Integer> l = ld.nearest(new Point(x, y), Float.POSITIVE_INFINITY);
+              List<Integer> l = ld.nearest(new Spot(x, y), Float.POSITIVE_INFINITY);
               totalEntriesReturned += l.size();
               
               StringBuffer tempBuffer = new StringBuffer("  " + id + " " +
@@ -285,7 +285,7 @@ public class Script {
               float x = (float) random.nextGaussian() * canvasSize;
               float y = (float) random.nextGaussian() * canvasSize;
               
-              List<Integer> l = ld.nearestN(new Point(x, y), n, Float.POSITIVE_INFINITY);
+              List<Integer> l = ld.nearestN(new Spot(x, y), n, Float.POSITIVE_INFINITY);
               
               totalEntriesReturned += l.size();
               
@@ -315,7 +315,7 @@ public class Script {
             int totalEntriesReturned = 0;
             
             for (int id = 0; id < queryCount; id++) {
-              Rectangle r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
+              Area r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
               List<Integer> l = ld.intersects(r);
               totalEntriesReturned += l.size();
               
@@ -343,7 +343,7 @@ public class Script {
             int totalEntriesReturned = 0;
             
             for (int id = 0; id < queryCount; id++) {
-              Rectangle r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
+              Area r = getRandomRectangle(random, rectangleSize, canvasSize, quantizer);
               List<Integer> l = ld.contains(r);
               totalEntriesReturned += l.size();
               
@@ -368,7 +368,7 @@ public class Script {
             float x2 = Float.parseFloat(st.nextToken());
             float y2 = Float.parseFloat(st.nextToken());
              
-            si.add(new Rectangle(x1, y1, x2, y2), id);
+            si.add(new Area(x1, y1, x2, y2), id);
              
             outputBuffer.append(" : OK");
             writeOutput(outputBuffer.toString(), outputFile, referenceFile);
@@ -380,7 +380,7 @@ public class Script {
             float x2 = Float.parseFloat(st.nextToken());
             float y2 = Float.parseFloat(st.nextToken());
              
-            boolean deleted = si.delete(new Rectangle(x1, y1, x2, y2), id);
+            boolean deleted = si.delete(new Area(x1, y1, x2, y2), id);
              
             if (deleted) {
               outputBuffer.append(" : OK");
@@ -393,7 +393,7 @@ public class Script {
             float x = Float.parseFloat(st.nextToken());
             float y = Float.parseFloat(st.nextToken());
              
-            List<Integer> l = ld.nearest(new Point(x, y), Float.POSITIVE_INFINITY);
+            List<Integer> l = ld.nearest(new Spot(x, y), Float.POSITIVE_INFINITY);
             
             outputBuffer.append(" : OK");
 
@@ -410,7 +410,7 @@ public class Script {
             float x2 = Float.parseFloat(st.nextToken());
             float y2 = Float.parseFloat(st.nextToken());
             
-            List<Integer> l = ld.intersects(new Rectangle(x1, y1, x2, y2));
+            List<Integer> l = ld.intersects(new Area(x1, y1, x2, y2));
             
             outputBuffer.append(" : OK");
              

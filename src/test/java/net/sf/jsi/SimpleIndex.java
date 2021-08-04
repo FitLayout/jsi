@@ -39,7 +39,7 @@ import java.util.Properties;
  * <p>On the other hand, the add() and delete() methods are very fast :-)</p>
  */
 public class SimpleIndex implements SpatialIndex {
-  TIntObjectHashMap<Rectangle> m_map = new TIntObjectHashMap<Rectangle>();
+  TIntObjectHashMap<Area> m_map = new TIntObjectHashMap<Area>();
   
   /**
    * Does nothing. There are no implementation dependent properties for 
@@ -52,14 +52,14 @@ public class SimpleIndex implements SpatialIndex {
   /**
    * Nearest
    */
-  private TIntArrayList nearest(Point p, float furthestDistance) {
+  private TIntArrayList nearest(Spot p, float furthestDistance) {
     TIntArrayList ret = new TIntArrayList();
     float nearestDistance = furthestDistance;
-    TIntObjectIterator<Rectangle> i = m_map.iterator();
+    TIntObjectIterator<Area> i = m_map.iterator();
     while (i.hasNext()) {
       i.advance();
       int currentId = i.key();
-      Rectangle currentRectangle = i.value(); 
+      Area currentRectangle = i.value(); 
       float distance = currentRectangle.distance(p);
       if (distance < nearestDistance) {
         nearestDistance = distance;
@@ -73,9 +73,9 @@ public class SimpleIndex implements SpatialIndex {
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#nearest(Point, gnu.trove.TIntProcedure, float)
+   * @see net.sf.jsi.SpatialIndex#nearest(Spot, gnu.trove.TIntProcedure, float)
    */
-  public void nearest(Point p, final TIntProcedure v, float furthestDistance) {
+  public void nearest(Spot p, final TIntProcedure v, float furthestDistance) {
     TIntArrayList nearestList = nearest(p, furthestDistance); 
     nearestList.forEach(new TIntProcedure() {
       public boolean execute(int id) {
@@ -85,15 +85,15 @@ public class SimpleIndex implements SpatialIndex {
     });
   } 
   
-  private TIntArrayList nearestN(Point p, int n, float furthestDistance) {
+  private TIntArrayList nearestN(Spot p, int n, float furthestDistance) {
     TIntArrayList ids = new TIntArrayList();
     TFloatArrayList distances = new TFloatArrayList();
     
-    TIntObjectIterator<Rectangle> iter = m_map.iterator();
+    TIntObjectIterator<Area> iter = m_map.iterator();
     while (iter.hasNext()) {
       iter.advance();
       int currentId = iter.key();
-      Rectangle currentRectangle = iter.value(); 
+      Area currentRectangle = iter.value(); 
       float distance = currentRectangle.distance(p);
       
       if (distance <= furthestDistance) {
@@ -128,9 +128,9 @@ public class SimpleIndex implements SpatialIndex {
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestN(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestN(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestN(Point p, final TIntProcedure v, int n, float furthestDistance) {
+  public void nearestN(Spot p, final TIntProcedure v, int n, float furthestDistance) {
     TIntArrayList nearestList = nearestN(p, n, furthestDistance); 
     nearestList.forEach(new TIntProcedure() {
       public boolean execute(int id) {
@@ -143,21 +143,21 @@ public class SimpleIndex implements SpatialIndex {
   /**
    * Same as nearestN
    * 
-   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestNUnsorted(Point p, final TIntProcedure v, int n, float furthestDistance) {
+  public void nearestNUnsorted(Spot p, final TIntProcedure v, int n, float furthestDistance) {
     nearestN(p, v, n, furthestDistance);
   } 
   
   /**
-   * @see net.sf.jsi.SpatialIndex#intersects(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#intersects(Area, gnu.trove.TIntProcedure)
    */
-  public void intersects(Rectangle r, TIntProcedure v) {
-    TIntObjectIterator<Rectangle> i = m_map.iterator();
+  public void intersects(Area r, TIntProcedure v) {
+    TIntObjectIterator<Area> i = m_map.iterator();
     while (i.hasNext()) {
       i.advance();
       int currentId = i.key();
-      Rectangle currentRectangle = i.value(); 
+      Area currentRectangle = i.value(); 
       if (r.intersects(currentRectangle)) {
         v.execute(currentId);      
       }
@@ -165,14 +165,14 @@ public class SimpleIndex implements SpatialIndex {
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#contains(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#contains(Area, gnu.trove.TIntProcedure)
    */
-  public void contains(Rectangle r, TIntProcedure v) {
-   TIntObjectIterator<Rectangle> i = m_map.iterator();
+  public void contains(Area r, TIntProcedure v) {
+   TIntObjectIterator<Area> i = m_map.iterator();
    while (i.hasNext()) {
       i.advance();
       int currentId = i.key();
-      Rectangle currentRectangle = i.value(); 
+      Area currentRectangle = i.value(); 
       if (r.contains(currentRectangle)) {
         v.execute(currentId);      
       }
@@ -181,17 +181,17 @@ public class SimpleIndex implements SpatialIndex {
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#add(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#add(Area, int)
    */
-  public void add(Rectangle r, int id) {
+  public void add(Area r, int id) {
     m_map.put(id, r.copy());
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#delete(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#delete(Area, int)
    */
-  public boolean delete(Rectangle r, int id) {
-    Rectangle value = m_map.get(id);
+  public boolean delete(Area r, int id) {
+    Area value = m_map.get(id);
     
     if (r.equals(value)) {
       m_map.remove(id);
@@ -210,12 +210,12 @@ public class SimpleIndex implements SpatialIndex {
   /**
    * @see net.sf.jsi.SpatialIndex#getBounds()
    */
-  public Rectangle getBounds() {
-    Rectangle bounds = null;
-    TIntObjectIterator<Rectangle> i = m_map.iterator();
+  public Area getBounds() {
+    Area bounds = null;
+    TIntObjectIterator<Area> i = m_map.iterator();
     while (i.hasNext()) {
       i.advance();
-      Rectangle currentRectangle = i.value(); 
+      Area currentRectangle = i.value(); 
       if (bounds == null) {
         bounds = currentRectangle.copy(); 
       } else {

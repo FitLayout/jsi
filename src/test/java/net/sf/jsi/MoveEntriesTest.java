@@ -21,7 +21,7 @@ package net.sf.jsi;
 import java.util.Properties;
 import java.util.Random;
 
-import net.sf.jsi.Rectangle;
+import net.sf.jsi.Area;
 import junit.framework.TestCase;
 
 public class MoveEntriesTest extends TestCase {
@@ -33,8 +33,8 @@ public class MoveEntriesTest extends TestCase {
     r.setSeed(0);
   }
 
-  private Rectangle nextRect() {
-    return new Rectangle(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100));
+  private Area nextRect() {
+    return new Area(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100));
   }
 
   public void testMoveEntries() {
@@ -47,7 +47,7 @@ public class MoveEntriesTest extends TestCase {
     p.setProperty("MaxNodeEntries", Integer.toString(maxNodeEntries));
     RTree rtree = (RTree) SpatialIndexFactory.newInstance("rtree.RTree", p);
 
-    Rectangle[] rects = new Rectangle[numRects];
+    Area[] rects = new Area[numRects];
 
     // first add the rects
     for (int i = 0; i < numRects; i++) {

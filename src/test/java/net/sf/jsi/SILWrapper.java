@@ -103,16 +103,16 @@ public class SILWrapper implements SpatialIndex {
   /**
    * @see net.sf.jsi.SpatialIndex#nearest(Point p, gnu.trove.TIntProcedure ip, float)
    */
-  public void nearest(Point p, TIntProcedure v, float furthestDistance) {
+  public void nearest(Spot p, TIntProcedure v, float furthestDistance) {
     tree.nearestNeighborQuery(1, 
                               new sil.spatialindex.Point(new double[] {p.x, p.y}),  
                               new IntProcedureVisitor(v));
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestN(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestN(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestN(Point p, TIntProcedure v, int n, float furthestDistance) {
+  public void nearestN(Spot p, TIntProcedure v, int n, float furthestDistance) {
     tree.nearestNeighborQuery(n, 
                               new sil.spatialindex.Point(new double[] {p.x, p.y}),  
                               new IntProcedureVisitor(v));
@@ -121,42 +121,42 @@ public class SILWrapper implements SpatialIndex {
   /**
    * Same as nearestN
    * 
-   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestNUnsorted(Point p, TIntProcedure v, int n, float furthestDistance) {
+  public void nearestNUnsorted(Spot p, TIntProcedure v, int n, float furthestDistance) {
     nearestN(p, v, n, furthestDistance);
   }
 
   
   /**
-   * @see net.sf.jsi.SpatialIndex#intersects(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#intersects(Area, gnu.trove.TIntProcedure)
    */
-  public void intersects(Rectangle r, TIntProcedure v) {
+  public void intersects(Area r, TIntProcedure v) {
     Region region = new Region(new double[] {r.minX, r.minY}, new double[] {r.maxX, r.maxY});  
     tree.intersectionQuery(region, new IntProcedureVisitor(v));
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#contains(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#contains(Area, gnu.trove.TIntProcedure)
    */
-  public void contains(Rectangle r, TIntProcedure v) {
+  public void contains(Area r, TIntProcedure v) {
     Region region = new Region(new double[] {r.minX, r.minY}, new double[] {r.maxX, r.maxY});
     tree.containmentQuery(region, new IntProcedureVisitor(v));
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#add(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#add(Area, int)
    */
-  public void add(Rectangle r, int id) {
+  public void add(Area r, int id) {
     Region region = new Region(new double[] {r.minX, r.minY}, new double[] {r.maxX, r.maxY});
     tree.insertData(null, region, (int)id);
     size++;
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#delete(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#delete(Area, int)
    */
-  public boolean delete(Rectangle r, int id) {
+  public boolean delete(Area r, int id) {
     Region region = new Region(new double[] {r.minX, r.minY}, new double[] {r.maxX, r.maxY});
     if (tree.deleteData(region, (int)id)) {
       size--;
@@ -175,7 +175,7 @@ public class SILWrapper implements SpatialIndex {
   /**
    * @see net.sf.jsi.SpatialIndex#getBounds()
    */
-  public Rectangle getBounds() {
+  public Area getBounds() {
     return null; // operation not supported in Spatial Index Library
   }
 

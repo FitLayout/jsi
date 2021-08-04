@@ -21,8 +21,8 @@ package net.sf.jsi;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.jsi.Point;
-import net.sf.jsi.Rectangle;
+import net.sf.jsi.Spot;
+import net.sf.jsi.Area;
 import net.sf.jsi.SpatialIndex;
 
 /**
@@ -39,19 +39,19 @@ public class SortedListDecorator extends ListDecorator {
    	return l;
   }
   
-  public List<Integer> nearestN(Point p, int maxCount, float furthestDistance) {
+  public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance) {
     return sort(super.nearestN(p, maxCount, furthestDistance));
   }
    
-  public List<Integer> nearest(Point p, float furthestDistance) {
+  public List<Integer> nearest(Spot p, float furthestDistance) {
     return sort(super.nearest(p, furthestDistance));
   }
    
-  public List<Integer> intersects(Rectangle r) {
+  public List<Integer> intersects(Area r) {
     return sort(super.intersects(r));
   }
   	 	
-  public List<Integer> contains(Rectangle r) {
+  public List<Integer> contains(Area r) {
   	return sort(super.contains(r));
   }
 }

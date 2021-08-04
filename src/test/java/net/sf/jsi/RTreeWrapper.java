@@ -55,63 +55,63 @@ public class RTreeWrapper implements SpatialIndex {
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#nearest(Point, gnu.trove.TIntProcedure, float)
+   * @see net.sf.jsi.SpatialIndex#nearest(Spot, gnu.trove.TIntProcedure, float)
    */
-  public void nearest(Point p, TIntProcedure v, float furthestDistance) {
-    tree.nearest(new Point(p.x, p.y),
+  public void nearest(Spot p, TIntProcedure v, float furthestDistance) {
+    tree.nearest(new Spot(p.x, p.y),
                  new IntProcedure2(v),
                  Float.POSITIVE_INFINITY);
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestN(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestN(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestN(Point p, TIntProcedure v, int n, float furthestDistance) {
-    tree.nearestN(new Point(p.x, p.y),
+  public void nearestN(Spot p, TIntProcedure v, int n, float furthestDistance) {
+    tree.nearestN(new Spot(p.x, p.y),
                  new IntProcedure2(v),
                  n,
                  furthestDistance);
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Point, gnu.trove.TIntProcedure, int, float)
+   * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, gnu.trove.TIntProcedure, int, float)
    */
-  public void nearestNUnsorted(Point p, TIntProcedure v, int n, float furthestDistance) {
-    tree.nearestNUnsorted(new Point(p.x, p.y),
+  public void nearestNUnsorted(Spot p, TIntProcedure v, int n, float furthestDistance) {
+    tree.nearestNUnsorted(new Spot(p.x, p.y),
                  new IntProcedure2(v),
                  n,
                  furthestDistance);
   }
   
   /**
-   * @see net.sf.jsi.SpatialIndex#intersects(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#intersects(Area, gnu.trove.TIntProcedure)
    */
-  public void intersects(Rectangle r, TIntProcedure ip) {
-    Rectangle r2 = new Rectangle(r.minX, r.minY, r.maxX, r.maxY);  
+  public void intersects(Area r, TIntProcedure ip) {
+    Area r2 = new Area(r.minX, r.minY, r.maxX, r.maxY);  
     tree.intersects(r2, new IntProcedure2(ip));
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#contains(Rectangle, gnu.trove.TIntProcedure)
+   * @see net.sf.jsi.SpatialIndex#contains(Area, gnu.trove.TIntProcedure)
    */
-  public void contains(Rectangle r, TIntProcedure ip) {
-    Rectangle r2 = new Rectangle(r.minX, r.minY, r.maxX, r.maxY);
+  public void contains(Area r, TIntProcedure ip) {
+    Area r2 = new Area(r.minX, r.minY, r.maxX, r.maxY);
     tree.contains(r2, new IntProcedure2(ip));
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#add(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#add(Area, int)
    */
-  public void add(Rectangle r, int id) {
-    Rectangle r2 = new Rectangle(r.minX, r.minY, r.maxX, r.maxY);
+  public void add(Area r, int id) {
+    Area r2 = new Area(r.minX, r.minY, r.maxX, r.maxY);
     tree.add(r2, id);
   }
 
   /**
-   * @see net.sf.jsi.SpatialIndex#delete(Rectangle, int)
+   * @see net.sf.jsi.SpatialIndex#delete(Area, int)
    */
-  public boolean delete(Rectangle r, int id) {
-    Rectangle r2 = new Rectangle(r.minX, r.minY, r.maxX, r.maxY);
+  public boolean delete(Area r, int id) {
+    Area r2 = new Area(r.minX, r.minY, r.maxX, r.maxY);
     return tree.delete(r2, id);
   }
 
@@ -125,7 +125,7 @@ public class RTreeWrapper implements SpatialIndex {
   /**
    * @see net.sf.jsi.SpatialIndex#getBounds()
    */
-  public Rectangle getBounds() {
+  public Area getBounds() {
     return tree.getBounds(); 
   }
   

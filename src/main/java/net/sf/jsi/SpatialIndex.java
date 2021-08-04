@@ -48,7 +48,7 @@ public interface SpatialIndex
 	 *        The result of adding more than one rectangle with
 	 *        the same ID is undefined.
 	 */
-	public void add(Rectangle r, int id);
+	public void add(Area r, int id);
 
 
 	/**
@@ -62,7 +62,7 @@ public interface SpatialIndex
 	 *         false if the rectangle was not found, or the
 	 *         rectangle was found but with a different ID
 	 */
-	public boolean delete(Rectangle r, int id);
+	public boolean delete(Area r, int id);
 
 
 	/**
@@ -87,7 +87,7 @@ public interface SpatialIndex
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
-	public void nearest(Point p, TIntProcedure v, float furthestDistance);
+	public void nearest(Spot p, TIntProcedure v, float furthestDistance);
 
 
 	/**
@@ -116,14 +116,14 @@ public interface SpatialIndex
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
-	public void nearestN(Point p, TIntProcedure v, int n, float distance);
+	public void nearestN(Spot p, TIntProcedure v, int n, float distance);
 
 
 	/**
 	 * Same as nearestN, except the found rectangles are not returned
 	 * in sorted order. This will be faster, if sorting is not required
 	 */
-	public void nearestNUnsorted(Point p, TIntProcedure v, int n, float distance);
+	public void nearestNUnsorted(Spot p, TIntProcedure v, int n, float distance);
 
 
 	/**
@@ -135,7 +135,7 @@ public interface SpatialIndex
 	 * @param ip The IntProcedure whose execute() method is is called
 	 *        for each intersecting rectangle.
 	 */
-	public void intersects(Rectangle r, TIntProcedure ip);
+	public void intersects(Area r, TIntProcedure ip);
 
 
 	/**
@@ -147,7 +147,7 @@ public interface SpatialIndex
 	 * @param ip The procedure whose visit() method is is called
 	 *        for each contained rectangle.
 	 */
-	public void contains(Rectangle r, TIntProcedure ip);
+	public void contains(Area r, TIntProcedure ip);
 
 
 	/**
@@ -160,7 +160,7 @@ public interface SpatialIndex
 	 * Returns the bounds of all the entries in the spatial index,
 	 * or null if there are no entries.
 	 */
-	public Rectangle getBounds();
+	public Area getBounds();
 
 
 	/**

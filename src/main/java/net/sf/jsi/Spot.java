@@ -21,7 +21,7 @@ package net.sf.jsi;
 /**
  * Currently hardcoded to 2 dimensions, but could be extended.
  */
-public class Point
+public class Spot
 {
 	/**
 	 * The (x, y) coordinates of the point.
@@ -35,7 +35,7 @@ public class Point
 	 * @param x The x coordinate of the point
 	 * @param y The y coordinate of the point
 	 */
-	public Point(float x, float y)
+	public Spot(float x, float y)
 	{
 		this.x = x;
 		this.y = y;
@@ -45,7 +45,7 @@ public class Point
 	/**
 	 * Copy from another point into this one
 	 */
-	public void set(Point other)
+	public void set(Spot other)
 	{
 		x = other.x;
 		y = other.y;
