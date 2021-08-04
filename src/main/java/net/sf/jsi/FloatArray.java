@@ -68,7 +68,7 @@ final class FloatArray implements Externalizable
 	
 	public void clear()
 	{
-		if ( _data.length>16 ) _data = EMPTY;
+		if ( _data.length>8 ) _data = EMPTY;
 		_size = 0;
 	}
 	
@@ -83,7 +83,7 @@ final class FloatArray implements Externalizable
 	public void push(float v)
 	{
 		if ( _size >= _data.length ) {
-			_data = Arrays.copyOf(_data, _size<16 ? 16 : _size * 2);
+			_data = Arrays.copyOf(_data, _size<8 ? 8 : _size * 2);
 		}
 		_data[_size++] = v;
 	}
