@@ -20,19 +20,11 @@ package net.sf.jsi;
 
 import java.util.Properties;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import net.sf.jsi.RTree;
-
 /**
  * Factory class used to create instances of spatial indexes
  */
 public class SpatialIndexFactory {
   
-  private final static Logger log = 
-    LoggerFactory.getLogger(SpatialIndexFactory.class);
-
   public static RTree newInstance(String type) {
     return newInstance(type, null);
   }

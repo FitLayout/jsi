@@ -34,18 +34,18 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Random;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import junit.framework.TestCase;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * Script
  */
 public class Script {
   
-  private static final Logger log = LoggerFactory.getLogger(Script.class);
+  private static final Logger log = Logger.getLogger(Script.class.getName());
 
   static final int REFERENCE_COMPARISON = 1;
   static final int REFERENCE_GENERATE = 2;
@@ -59,14 +59,14 @@ public class Script {
       if (referenceFile != null) { 
         String referenceLine = referenceFile.readLine();
         if (!outputLine.equals(referenceLine)) {
-          log.error("Output does not match reference on line " + referenceFile.getLineNumber());
-          log.error(" Reference result: " + referenceLine);
-          log.error(" Test result:      " + outputLine);
+          log.severe("Output does not match reference on line " + referenceFile.getLineNumber());
+          log.severe(" Reference result: " + referenceLine);
+          log.severe(" Test result:      " + outputLine);
           TestCase.assertTrue("Output does not match reference on line " + referenceFile.getLineNumber(), false);
         }
       }
     }  catch (IOException e) {
-       log.error("IOException while writing test results");
+       log.severe("IOException while writing test results");
     }  
   }
   
@@ -95,7 +95,7 @@ public class Script {
    * @return Time taken to execute method, in milliseconds.
    */
   public long run(String indexType, Properties indexProperties, String testId, int testType) {
-    if (log.isInfoEnabled()) {
+    if (log.isLoggable(Level.INFO)) {
       log.info("runScript: " + indexType + ", testId=" + testId);
       if (indexProperties != null) {
         log.info("minEntries=" + indexProperties.getProperty("MinNodeEntries") +
@@ -131,7 +131,7 @@ public class Script {
       inputFile = new LineNumberReader(new InputStreamReader(getClass().getResourceAsStream(inputFilename)));          
     }
     catch (Throwable t) {
-      log.error("Unable to open test input file " + inputFilename);
+      log.severe("Unable to open test input file " + inputFilename);
       TestCase.assertTrue("Unable to open test input file " + inputFilename, false);
       return -1;
     }
@@ -144,7 +144,7 @@ public class Script {
       try {
         referenceFile = new LineNumberReader(new InputStreamReader(new FileInputStream(referenceFilename)));
       } catch (FileNotFoundException e) {
-        log.error("Unable to open reference test results file " + referenceFilename);
+        log.severe("Unable to open reference test results file " + referenceFilename);
         TestCase.assertTrue("Unable to open reference test results file " + referenceFilename, false);
         return -1;
       }
@@ -171,7 +171,7 @@ public class Script {
     try {
       outputFile = new PrintWriter(new FileOutputStream(outputFilename));
     } catch (FileNotFoundException e) {
-      log.error("Unable to open test output results file " + outputFilename);
+      log.severe("Unable to open test output results file " + outputFilename);
       TestCase.assertTrue("Unable to open test output results file " + outputFilename, false);
       return -1;
     }
@@ -214,8 +214,8 @@ public class Script {
               writeOutput(outputLine, outputFile, referenceFile);
             }
             long time = System.currentTimeMillis() - startTime;
-            if (log.isDebugEnabled()) {
-              log.debug("Added " + count + " entries in " + time +  "ms (" + time / (float) count + " ms per add)");
+            if (log.isLoggable(Level.FINE)) {
+              log.fine("Added " + count + " entries in " + time +  "ms (" + time / (float) count + " ms per add)");
             }
           } else if (operation.equals("DELETERANDOM")) {
             int count = Integer.parseInt(st.nextToken());
@@ -238,8 +238,8 @@ public class Script {
               writeOutput(outputLine, outputFile, referenceFile);
             }
             long time = System.currentTimeMillis() - startTime;
-            if (log.isDebugEnabled()) {
-              log.debug("Attempted to delete " + count + " entries (" + successfulDeleteCount + " successful) in " + time +  "ms (" + time / (float) count + " ms per delete)");
+            if (log.isLoggable(Level.FINE)) {
+              log.fine("Attempted to delete " + count + " entries (" + successfulDeleteCount + " successful) in " + time +  "ms (" + time / (float) count + " ms per delete)");
             }
           } 
           else if (operation.equals("NEARESTRANDOM")) {
@@ -269,7 +269,7 @@ public class Script {
               writeOutput(tempBuffer.toString(), outputFile, referenceFile);
             } 
             long time = System.currentTimeMillis() - startTime;
-            if (log.isInfoEnabled()) {
+            if (log.isLoggable(Level.INFO)) {
               log.info("NearestQueried " + queryCount + " times in " + time + "ms. Per query: " + time / (float) queryCount + " ms, " + (totalEntriesReturned / (float) queryCount) + " entries");
             }
           } else if (operation.equals("NEARESTNRANDOM")) {
@@ -302,7 +302,7 @@ public class Script {
               writeOutput(tempBuffer.toString(), outputFile, referenceFile);
             } 
             long time = System.currentTimeMillis() - startTime;
-            if (log.isInfoEnabled()) {
+            if (log.isLoggable(Level.INFO)) {
               log.info("NearestNQueried " + queryCount + " times in " + time + "ms. Per query: " + time / (float) queryCount + " ms, " + (totalEntriesReturned / (float) queryCount) + " entries");
             }
           } else if (operation.equals("INTERSECTRANDOM")) {
@@ -329,7 +329,7 @@ public class Script {
               writeOutput(tempBuffer.toString(), outputFile, referenceFile);
             }
             long time = System.currentTimeMillis() - startTime;
-            if (log.isInfoEnabled()) {
+            if (log.isLoggable(Level.INFO)) {
               log.info("IntersectQueried " + queryCount + " times in " + time + "ms. Per query: " + time / (float) queryCount + " ms, " + (totalEntriesReturned / (float) queryCount) + " entries");
             }
           } 
@@ -357,7 +357,7 @@ public class Script {
               writeOutput(tempBuffer.toString(), outputFile, referenceFile);
             }
             long time = System.currentTimeMillis() - startTime;
-            if (log.isInfoEnabled()) {
+            if (log.isLoggable(Level.INFO)) {
               log.info("ContainsQueried " + queryCount + " times in " + time + "ms. Per query: " + time / (float) queryCount + " ms, " + (totalEntriesReturned / (float) queryCount) + " entries");
             }
           } 
@@ -424,7 +424,7 @@ public class Script {
         } // for each token on the current input line
       } // for each input line
     } catch (IOException e) {
-      log.error("IOException while running test script in SpatialIndexTest", e); 
+      log.log(Level.SEVERE, "IOException while running test script in SpatialIndexTest", e); 
       return -1;
     } 
     long scriptEndTime = System.currentTimeMillis();

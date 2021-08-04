@@ -25,10 +25,9 @@ import java.util.Random;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Logger;
 
 import org.junit.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import net.sf.jsi.RTree.AreaCallback;
 
@@ -45,7 +44,7 @@ import net.sf.jsi.RTree.AreaCallback;
  */
 public class PerformanceTest {
 
-  private static final Logger log = LoggerFactory.getLogger(PerformanceTest.class);
+  private static final Logger log = Logger.getLogger(PerformanceTest.class.getName());
   private RTree tree;
 
   private float randomFloat(Random r, float min, float max) {

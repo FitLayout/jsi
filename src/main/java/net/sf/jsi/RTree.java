@@ -159,13 +159,13 @@ public class RTree implements Serializable
 			// The node splitting algorithm will work with only 2 entries
 			// per node, but will be inefficient.
 			if ( maxNodeEntries < 2 ) {
-				log.log(Level.WARNING, "Invalid MaxNodeEntries = " + maxNodeEntries + " Resetting to default value of " + DEFAULT_MAX_NODE_ENTRIES);
+				log.warning("Invalid MaxNodeEntries = " + maxNodeEntries + " Resetting to default value of " + DEFAULT_MAX_NODE_ENTRIES);
 				maxNodeEntries = DEFAULT_MAX_NODE_ENTRIES;
 			}
 
 			// The MinNodeEntries must be less than or equal to (int) (MaxNodeEntries / 2)
 			if ( minNodeEntries < 1 || minNodeEntries > maxNodeEntries / 2 ) {
-				log.log(Level.WARNING, "MinNodeEntries must be between 1 and MaxNodeEntries / 2");
+				log.warning("MinNodeEntries must be between 1 and MaxNodeEntries / 2");
 				minNodeEntries = maxNodeEntries / 2;
 			}
 		}
@@ -180,7 +180,7 @@ public class RTree implements Serializable
 		Node root = new Node(rootNodeId, 1, maxNodeEntries);
 		nodeMap.put(rootNodeId, root);
 
-		if ( isDebug ) log.log(Level.FINE, "init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
+		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
 
 
@@ -194,7 +194,7 @@ public class RTree implements Serializable
 	 */
 	public void add(Area r, int id)
 	{
-		if ( isDebug ) log.log(Level.FINE, "Adding rectangle " + r + ", id " + id);
+		if ( isDebug ) log.fine("Adding rectangle " + r + ", id " + id);
 
 		add(r.minX, r.minY, r.maxX, r.maxY, id, 1);
 
@@ -282,7 +282,7 @@ public class RTree implements Serializable
 			int startIndex = parentsEntry.peek() + 1;
 
 			if ( !n.isLeaf() ) {
-				if ( isDebugDel ) logDel.log(Level.FINE, "searching node " + n.nodeId + ", from index " + startIndex);
+				if ( isDebugDel ) logDel.fine("searching node " + n.nodeId + ", from index " + startIndex);
 				boolean contains = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
 					if ( Area.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], r.minX, r.minY, r.maxX, r.maxY) ) {
@@ -746,11 +746,11 @@ public class RTree implements Serializable
 		if ( INTERNAL_CONSISTENCY_CHECKING ) {
 			Area nMBR = new Area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
 			if ( !nMBR.equals(calculateMBR(n)) ) {
-				log.log(Level.SEVERE, "Error: splitNode old node MBR wrong");
+				log.severe("Error: splitNode old node MBR wrong");
 			}
 			Area newNodeMBR = new Area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
 			if ( !newNodeMBR.equals(calculateMBR(newNode)) ) {
-				log.log(Level.SEVERE, "Error: splitNode new node MBR wrong");
+				log.severe("Error: splitNode new node MBR wrong");
 			}
 		}
 
@@ -759,7 +759,7 @@ public class RTree implements Serializable
 			float newArea = Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY)
 				+ Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
 			float percentageIncrease = (100 * (newArea - initialArea)) / initialArea;
-			log.log(Level.FINE, "Node " + n.nodeId + " split. New area increased by " + percentageIncrease + "%");
+			log.fine("Node " + n.nodeId + " split. New area increased by " + percentageIncrease + "%");
 		}
 
 		return newNode;
@@ -790,7 +790,7 @@ public class RTree implements Serializable
 		float mbrLenY = n.mbrMaxY - n.mbrMinY;
 
 		if ( isDebug ) {
-			log.log(Level.FINE, "pickSeeds(): NodeId = " + n.nodeId);
+			log.fine("pickSeeds(): NodeId = " + n.nodeId);
 		}
 
 		float tempHighestLow = newRectMinX;
@@ -817,11 +817,11 @@ public class RTree implements Serializable
 			// dimension
 			float normalizedSeparation = mbrLenX == 0 ? 1 : (tempHighestLow - tempLowestHigh) / mbrLenX;
 			if ( normalizedSeparation > 1 || normalizedSeparation < -1 ) {
-				log.log(Level.SEVERE, "Invalid normalized separation X");
+				log.severe("Invalid normalized separation X");
 			}
 
 			if ( isDebug ) {
-				log.log(Level.FINE, "Entry " + i + ", dimension X: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
+				log.fine("Entry " + i + ", dimension X: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
 					+ tempLowestHigh + " (index " + tempLowestHighIndex + ", NormalizedSeparation = " + normalizedSeparation);
 			}
 
@@ -861,11 +861,11 @@ public class RTree implements Serializable
 			// dimension
 			float normalizedSeparation = mbrLenY == 0 ? 1 : (tempHighestLow - tempLowestHigh) / mbrLenY;
 			if ( normalizedSeparation > 1 || normalizedSeparation < -1 ) {
-				log.log(Level.SEVERE, "Invalid normalized separation Y");
+				log.severe("Invalid normalized separation Y");
 			}
 
 			if ( isDebug ) {
-				log.log(Level.FINE, "Entry " + i + ", dimension Y: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
+				log.fine("Entry " + i + ", dimension Y: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
 					+ tempLowestHigh + " (index " + tempLowestHighIndex + ", NormalizedSeparation = " + normalizedSeparation);
 			}
 
@@ -948,7 +948,7 @@ public class RTree implements Serializable
 		maxDifference = Float.NEGATIVE_INFINITY;
 
 		if ( isDebug ) {
-			log.log(Level.FINE, "pickNext()");
+			log.fine("pickNext()");
 		}
 
 		final float rn = Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
@@ -958,7 +958,7 @@ public class RTree implements Serializable
 			if ( entryStatus[i] == ENTRY_STATUS_UNASSIGNED ) {
 
 				if ( n.ids[i] == -1 ) {
-					log.log(Level.SEVERE, "Error: Node " + n.nodeId + ", entry " + i + " is null");
+					log.severe("Error: Node " + n.nodeId + ", entry " + i + " is null");
 				}
 
 				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, rn, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
@@ -987,7 +987,7 @@ public class RTree implements Serializable
 					maxDifference = difference;
 				}
 				if ( isDebug ) {
-					log.log(Level.FINE, "Entry " + i + " group0 increase = " + nIncrease + ", group1 increase = " + newNodeIncrease + ", diff = " + difference
+					log.fine("Entry " + i + " group0 increase = " + nIncrease + ", group1 increase = " + newNodeIncrease + ", diff = " + difference
 						+ ", MaxDiff = " + maxDifference + " (entry " + next + ")");
 				}
 			}
@@ -1150,7 +1150,7 @@ public class RTree implements Serializable
 		// CL2 [Leaf check] If N is a leaf, return N
 		while ( true ) {
 			if ( n == null ) {
-				log.log(Level.SEVERE, "Could not get root node (" + rootNodeId + ")");
+				log.severe("Could not get root node (" + rootNodeId + ")");
 			}
 
 			if ( n.level == level ) {
@@ -1207,7 +1207,7 @@ public class RTree implements Serializable
 			int entry = parentsEntry.pop();
 
 			if ( parent.ids[entry] != n.nodeId ) {
-				log.log(Level.SEVERE, "Error: entry " + entry + " in node " + parent.nodeId + " should point to node " + n.nodeId + "; actually points to node "
+				log.severe("Error: entry " + entry + " in node " + parent.nodeId + " should point to node " + n.nodeId + "; actually points to node "
 					+ parent.ids[entry]);
 			}
 
@@ -1267,7 +1267,7 @@ public class RTree implements Serializable
 		Node n = getNode(nodeId);
 
 		if ( n == null ) {
-			log.log(Level.SEVERE, "Error: Could not read node " + nodeId);
+			log.severe("Error: Could not read node " + nodeId);
 			return false;
 		}
 
@@ -1275,13 +1275,13 @@ public class RTree implements Serializable
 		// TODO: also check the MBR is as for a new node
 		if ( nodeId == rootNodeId && size() == 0 ) {
 			if ( n.level != 1 ) {
-				log.log(Level.SEVERE, "Error: tree is empty but root node is not at level 1");
+				log.severe("Error: tree is empty but root node is not at level 1");
 				return false;
 			}
 		}
 
 		if ( n.level != expectedLevel ) {
-			log.log(Level.SEVERE, "Error: Node " + nodeId + ", expected level " + expectedLevel + ", actual level " + n.level);
+			log.severe("Error: Node " + nodeId + ", expected level " + expectedLevel + ", actual level " + n.level);
 			return false;
 		}
 
@@ -1292,28 +1292,28 @@ public class RTree implements Serializable
 		actualMBR.maxX = n.mbrMaxX;
 		actualMBR.maxY = n.mbrMaxY;
 		if ( !actualMBR.equals(calculatedMBR) ) {
-			log.log(Level.SEVERE, "Error: Node " + nodeId + ", calculated MBR does not equal stored MBR");
-			if ( actualMBR.minX != n.mbrMinX ) log.log(Level.SEVERE, "  actualMinX=" + actualMBR.minX + ", calc=" + calculatedMBR.minX);
-			if ( actualMBR.minY != n.mbrMinY ) log.log(Level.SEVERE, "  actualMinY=" + actualMBR.minY + ", calc=" + calculatedMBR.minY);
-			if ( actualMBR.maxX != n.mbrMaxX ) log.log(Level.SEVERE, "  actualMaxX=" + actualMBR.maxX + ", calc=" + calculatedMBR.maxX);
-			if ( actualMBR.maxY != n.mbrMaxY ) log.log(Level.SEVERE, "  actualMaxY=" + actualMBR.maxY + ", calc=" + calculatedMBR.maxY);
+			log.severe("Error: Node " + nodeId + ", calculated MBR does not equal stored MBR");
+			if ( actualMBR.minX != n.mbrMinX ) log.severe("  actualMinX=" + actualMBR.minX + ", calc=" + calculatedMBR.minX);
+			if ( actualMBR.minY != n.mbrMinY ) log.severe("  actualMinY=" + actualMBR.minY + ", calc=" + calculatedMBR.minY);
+			if ( actualMBR.maxX != n.mbrMaxX ) log.severe("  actualMaxX=" + actualMBR.maxX + ", calc=" + calculatedMBR.maxX);
+			if ( actualMBR.maxY != n.mbrMaxY ) log.severe("  actualMaxY=" + actualMBR.maxY + ", calc=" + calculatedMBR.maxY);
 			return false;
 		}
 
 		if ( expectedMBR != null && !actualMBR.equals(expectedMBR) ) {
-			log.log(Level.SEVERE, "Error: Node " + nodeId + ", expected MBR (from parent) does not equal stored MBR");
+			log.severe("Error: Node " + nodeId + ", expected MBR (from parent) does not equal stored MBR");
 			return false;
 		}
 
 		// Check for corruption where a parent entry is the same object as the child MBR
 		if ( expectedMBR != null && actualMBR.sameObject(expectedMBR) ) {
-			log.log(Level.SEVERE, "Error: Node " + nodeId + " MBR using same rectangle object as parent's entry");
+			log.severe("Error: Node " + nodeId + " MBR using same rectangle object as parent's entry");
 			return false;
 		}
 
 		for ( int i = 0; i < n.entryCount; i++ ) {
 			if ( n.ids[i] == -1 ) {
-				log.log(Level.SEVERE, "Error: Node " + nodeId + ", Entry " + i + " is null");
+				log.severe("Error: Node " + nodeId + ", Entry " + i + " is null");
 				return false;
 			}
 

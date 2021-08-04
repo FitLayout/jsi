@@ -70,7 +70,7 @@ import gnu.trove.list.array.TFloatArrayList;
  * isn't the right data structure.
  * </p>
  */
-public class PriorityQueue implements Serializable
+class PriorityQueue implements Serializable
 {
 	private static final long serialVersionUID = -5653506138757217673L;
 	public static final boolean SORT_ORDER_ASCENDING = true;
