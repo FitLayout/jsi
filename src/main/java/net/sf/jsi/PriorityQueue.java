@@ -80,7 +80,7 @@ public class PriorityQueue implements Serializable
 	private TFloatArrayList priorities = null;
 	private boolean sortOrder = SORT_ORDER_ASCENDING;
 
-	private static boolean INTERNAL_CONSISTENCY_CHECKING = false;
+	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
 
 
 	public PriorityQueue(boolean sortOrder)
