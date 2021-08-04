@@ -24,7 +24,7 @@ package net.sf.jsi;
 public class Spot
 {
 	/**
-	 * The (x, y) coordinates of the point.
+	 * The (x, y) coordinates of the spot.
 	 */
 	public float x, y;
 
@@ -32,8 +32,8 @@ public class Spot
 	/**
 	 * Constructor.
 	 *
-	 * @param x The x coordinate of the point
-	 * @param y The y coordinate of the point
+	 * @param x The x coordinate of the spot
+	 * @param y The y coordinate of the spot
 	 */
 	public Spot(float x, float y)
 	{
@@ -43,7 +43,7 @@ public class Spot
 
 
 	/**
-	 * Copy from another point into this one
+	 * Copy from another spot into this one
 	 */
 	public void set(Spot other)
 	{

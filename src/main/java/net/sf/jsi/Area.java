@@ -25,7 +25,7 @@ public class Area
 {
 
 	/**
-	 * use primitives instead of arrays for the coordinates of the rectangle,
+	 * use primitives instead of arrays for the coordinates of the area,
 	 * to reduce memory requirements.
 	 */
 	public float minX, minY, maxX, maxY;
@@ -43,7 +43,7 @@ public class Area
 	/**
 	 * Constructor.
 	 *
-	 * @param x1 coordinate of any corner of the rectangle
+	 * @param x1 coordinate of any corner of the area
 	 * @param y1 (see x1)
 	 * @param x2 coordinate of the opposite corner
 	 * @param y2 (see x2)
@@ -55,9 +55,9 @@ public class Area
 
 
 	/**
-	 * Sets the size of the rectangle.
+	 * Sets the size of the area.
 	 *
-	 * @param x1 coordinate of any corner of the rectangle
+	 * @param x1 coordinate of any corner of the area
 	 * @param y1 (see x1)
 	 * @param x2 coordinate of the opposite corner
 	 * @param y2 (see x2)
@@ -72,7 +72,7 @@ public class Area
 
 
 	/**
-	 * Sets the size of this rectangle to equal the passed rectangle.
+	 * Sets the size of this area to equal the passed area.
 	 */
 	public void set(Area r)
 	{
@@ -84,9 +84,9 @@ public class Area
 
 
 	/**
-	 * Make a copy of this rectangle
+	 * Make a copy of this area
 	 *
-	 * @return copy of this rectangle
+	 * @return copy of this area
 	 */
 	public Area copy()
 	{
@@ -95,8 +95,8 @@ public class Area
 
 
 	/**
-	 * Determine whether an edge of this rectangle overlies the equivalent
-	 * edge of the passed rectangle
+	 * Determine whether an edge of this area overlies the equivalent
+	 * edge of the passed area
 	 */
 	public boolean edgeOverlaps(Area r)
 	{
@@ -105,11 +105,11 @@ public class Area
 
 
 	/**
-	 * Determine whether this rectangle intersects the passed rectangle
+	 * Determine whether this area intersects the passed area
 	 *
-	 * @param r The rectangle that might intersect this rectangle
+	 * @param r The area that might intersect this area
 	 *
-	 * @return true if the rectangles intersect, false if they do not intersect
+	 * @return true if the areas intersect, false if they do not intersect
 	 */
 	public boolean intersects(Area r)
 	{
@@ -118,16 +118,16 @@ public class Area
 
 
 	/**
-	 * Determine whether or not two rectangles intersect
+	 * Determine whether or not two areas intersect
 	 *
-	 * @param r1MinX minimum X coordinate of rectangle 1
-	 * @param r1MinY minimum Y coordinate of rectangle 1
-	 * @param r1MaxX maximum X coordinate of rectangle 1
-	 * @param r1MaxY maximum Y coordinate of rectangle 1
-	 * @param r2MinX minimum X coordinate of rectangle 2
-	 * @param r2MinY minimum Y coordinate of rectangle 2
-	 * @param r2MaxX maximum X coordinate of rectangle 2
-	 * @param r2MaxY maximum Y coordinate of rectangle 2
+	 * @param r1MinX minimum X coordinate of area 1
+	 * @param r1MinY minimum Y coordinate of area 1
+	 * @param r1MaxX maximum X coordinate of area 1
+	 * @param r1MaxY maximum Y coordinate of area 1
+	 * @param r2MinX minimum X coordinate of area 2
+	 * @param r2MinY minimum Y coordinate of area 2
+	 * @param r2MaxX maximum X coordinate of area 2
+	 * @param r2MaxY maximum Y coordinate of area 2
 	 *
 	 * @return true if r1 intersects r2, false otherwise.
 	 */
@@ -138,11 +138,11 @@ public class Area
 
 
 	/**
-	 * Determine whether this rectangle contains the passed rectangle
+	 * Determine whether this area contains the passed area
 	 *
-	 * @param r The rectangle that might be contained by this rectangle
+	 * @param r The area that might be contained by this area
 	 *
-	 * @return true if this rectangle contains the passed rectangle, false if
+	 * @return true if this area contains the passed area, false if
 	 *         it does not
 	 */
 	public boolean contains(Area r)
@@ -152,16 +152,16 @@ public class Area
 
 
 	/**
-	 * Determine whether or not one rectangle contains another.
+	 * Determine whether or not one area contains another.
 	 *
-	 * @param r1MinX minimum X coordinate of rectangle 1
-	 * @param r1MinY minimum Y coordinate of rectangle 1
-	 * @param r1MaxX maximum X coordinate of rectangle 1
-	 * @param r1MaxY maximum Y coordinate of rectangle 1
-	 * @param r2MinX minimum X coordinate of rectangle 2
-	 * @param r2MinY minimum Y coordinate of rectangle 2
-	 * @param r2MaxX maximum X coordinate of rectangle 2
-	 * @param r2MaxY maximum Y coordinate of rectangle 2
+	 * @param r1MinX minimum X coordinate of area 1
+	 * @param r1MinY minimum Y coordinate of area 1
+	 * @param r1MaxX maximum X coordinate of area 1
+	 * @param r1MaxY maximum Y coordinate of area 1
+	 * @param r2MinX minimum X coordinate of area 2
+	 * @param r2MinY minimum Y coordinate of area 2
+	 * @param r2MaxX maximum X coordinate of area 2
+	 * @param r2MaxY maximum Y coordinate of area 2
 	 *
 	 * @return true if r1 contains r2, false otherwise.
 	 */
@@ -172,11 +172,11 @@ public class Area
 
 
 	/**
-	 * Determine whether this rectangle is contained by the passed rectangle
+	 * Determine whether this area is contained by the passed area
 	 *
-	 * @param r The rectangle that might contain this rectangle
+	 * @param r The area that might contain this area
 	 *
-	 * @return true if the passed rectangle contains this rectangle, false if
+	 * @return true if the passed area contains this area, false if
 	 *         it does not
 	 */
 	public boolean containedBy(Area r)
@@ -186,12 +186,12 @@ public class Area
 
 
 	/**
-	 * Return the distance between this rectangle and the passed point.
-	 * If the rectangle contains the point, the distance is zero.
+	 * Return the distance between this area and the passed point.
+	 * If the area contains the point, the distance is zero.
 	 *
 	 * @param p Point to find the distance to
 	 *
-	 * @return distance beween this rectangle and the passed point.
+	 * @return distance beween this area and the passed point.
 	 */
 	public float distance(Spot p)
 	{
@@ -220,17 +220,17 @@ public class Area
 
 
 	/**
-	 * Return the distance between a rectangle and a point.
-	 * If the rectangle contains the point, the distance is zero.
+	 * Return the distance between a area and a point.
+	 * If the area contains the point, the distance is zero.
 	 *
-	 * @param minX minimum X coordinate of rectangle
-	 * @param minY minimum Y coordinate of rectangle
-	 * @param maxX maximum X coordinate of rectangle
-	 * @param maxY maximum Y coordinate of rectangle
+	 * @param minX minimum X coordinate of area
+	 * @param minY minimum Y coordinate of area
+	 * @param maxX maximum X coordinate of area
+	 * @param maxY maximum Y coordinate of area
 	 * @param pX X coordinate of point
 	 * @param pY Y coordinate of point
 	 *
-	 * @return distance beween this rectangle and the passed point.
+	 * @return distance beween this area and the passed point.
 	 */
 	static public float distance(float minX, float minY, float maxX, float maxY, float pX, float pY)
 	{
@@ -264,12 +264,12 @@ public class Area
 
 
 	/**
-	 * Return the distance between this rectangle and the passed rectangle.
-	 * If the rectangles overlap, the distance is zero.
+	 * Return the distance between this area and the passed area.
+	 * If the areas overlap, the distance is zero.
 	 *
 	 * @param r Rectangle to find the distance to
 	 *
-	 * @return distance between this rectangle and the passed rectangle
+	 * @return distance between this area and the passed area
 	 */
 
 	public float distance(Area r)
@@ -290,12 +290,12 @@ public class Area
 
 
 	/**
-	 * Calculate the area by which this rectangle would be enlarged if
-	 * added to the passed rectangle. Neither rectangle is altered.
+	 * Calculate the area by which this area would be enlarged if
+	 * added to the passed area. Neither area is altered.
 	 *
-	 * @param r Rectangle to union with this rectangle, in order to
+	 * @param r Rectangle to union with this area, in order to
 	 *        compute the difference in area of the union and the
-	 *        original rectangle
+	 *        original area
 	 *
 	 * @return enlargement
 	 */
@@ -308,17 +308,17 @@ public class Area
 
 
 	/**
-	 * Calculate the area by which a rectangle would be enlarged if
-	 * added to the passed rectangle..
+	 * Calculate the area by which a area would be enlarged if
+	 * added to the passed area..
 	 *
-	 * @param r1MinX minimum X coordinate of rectangle 1
-	 * @param r1MinY minimum Y coordinate of rectangle 1
-	 * @param r1MaxX maximum X coordinate of rectangle 1
-	 * @param r1MaxY maximum Y coordinate of rectangle 1
-	 * @param r2MinX minimum X coordinate of rectangle 2
-	 * @param r2MinY minimum Y coordinate of rectangle 2
-	 * @param r2MaxX maximum X coordinate of rectangle 2
-	 * @param r2MaxY maximum Y coordinate of rectangle 2
+	 * @param r1MinX minimum X coordinate of area 1
+	 * @param r1MinY minimum Y coordinate of area 1
+	 * @param r1MaxX maximum X coordinate of area 1
+	 * @param r1MaxY maximum Y coordinate of area 1
+	 * @param r2MinX minimum X coordinate of area 2
+	 * @param r2MinY minimum Y coordinate of area 2
+	 * @param r2MaxX maximum X coordinate of area 2
+	 * @param r2MaxY maximum Y coordinate of area 2
 	 *
 	 * @return enlargement
 	 */
@@ -327,7 +327,7 @@ public class Area
 		float r1Area = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
 
 		if ( r1Area == Float.POSITIVE_INFINITY ) {
-			return 0; // cannot enlarge an infinite rectangle...
+			return 0; // cannot enlarge an infinite area...
 		}
 
 		if ( r2MinX < r1MinX ) r1MinX = r2MinX;
@@ -338,7 +338,7 @@ public class Area
 		float r1r2UnionArea = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
 
 		if ( r1r2UnionArea == Float.POSITIVE_INFINITY ) {
-			// if a finite rectangle is enlarged and becomes infinite,
+			// if a finite area is enlarged and becomes infinite,
 			// then the enlargement must be infinite.
 			return Float.POSITIVE_INFINITY;
 		}
@@ -347,9 +347,9 @@ public class Area
 
 
 	/**
-	 * Compute the area of this rectangle.
+	 * Compute the area of this area.
 	 *
-	 * @return The area of this rectangle
+	 * @return The area of this area
 	 */
 	public float area()
 	{
@@ -358,14 +358,14 @@ public class Area
 
 
 	/**
-	 * Compute the area of a rectangle.
+	 * Compute the area of a area.
 	 *
-	 * @param minX the minimum X coordinate of the rectangle
-	 * @param minY the minimum Y coordinate of the rectangle
-	 * @param maxX the maximum X coordinate of the rectangle
-	 * @param maxY the maximum Y coordinate of the rectangle
+	 * @param minX the minimum X coordinate of the area
+	 * @param minY the minimum Y coordinate of the area
+	 * @param maxX the maximum X coordinate of the area
+	 * @param maxY the maximum Y coordinate of the area
 	 *
-	 * @return The area of the rectangle
+	 * @return The area of the area
 	 */
 	static public float area(float minX, float minY, float maxX, float maxY)
 	{
@@ -374,10 +374,10 @@ public class Area
 
 
 	/**
-	 * Computes the union of this rectangle and the passed rectangle, storing
-	 * the result in this rectangle.
+	 * Computes the union of this area and the passed area, storing
+	 * the result in this area.
 	 *
-	 * @param r Rectangle to add to this rectangle
+	 * @param r Rectangle to add to this area
 	 */
 	public void add(Area r)
 	{
@@ -389,10 +389,10 @@ public class Area
 
 
 	/**
-	 * Computes the union of this rectangle and the passed point, storing
-	 * the result in this rectangle.
+	 * Computes the union of this area and the passed point, storing
+	 * the result in this area.
 	 *
-	 * @param p Point to add to this rectangle
+	 * @param p Point to add to this area
 	 */
 	public void add(Spot p)
 	{
@@ -404,10 +404,10 @@ public class Area
 
 
 	/**
-	 * Find the the union of this rectangle and the passed rectangle.
-	 * Neither rectangle is altered
+	 * Find the the union of this area and the passed area.
+	 * Neither area is altered
 	 *
-	 * @param r The rectangle to union with this rectangle
+	 * @param r The area to union with this area
 	 */
 	public Area union(Area r)
 	{
@@ -431,10 +431,10 @@ public class Area
 
 
 	/**
-	 * Determine whether this rectangle is equal to a given object.
-	 * Equality is determined by the bounds of the rectangle.
+	 * Determine whether this area is equal to a given object.
+	 * Equality is determined by the bounds of the area.
 	 *
-	 * @param o The object to compare with this rectangle
+	 * @param o The object to compare with this area
 	 */
 	@Override
 	public boolean equals(Object o)
@@ -451,12 +451,12 @@ public class Area
 
 
 	/**
-	 * Determine whether this rectangle is the same as another object
+	 * Determine whether this area is the same as another object
 	 *
-	 * Note that two rectangles can be equal but not the same object,
+	 * Note that two areas can be equal but not the same object,
 	 * if they both have the same bounds.
 	 *
-	 * @param o The object to compare with this rectangle.
+	 * @param o The object to compare with this area.
 	 */
 	public boolean sameObject(Object o)
 	{
@@ -465,10 +465,10 @@ public class Area
 
 
 	/**
-	 * Return a string representation of this rectangle, in the form:
+	 * Return a string representation of this area, in the form:
 	 * (1.2, 3.4), (5.6, 7.8)
 	 *
-	 * @return String String representation of this rectangle.
+	 * @return String String representation of this area.
 	 */
 	@Override
 	public String toString()
@@ -479,7 +479,7 @@ public class Area
 
 	/**
 	 * Utility methods (not used by JSI); added to
-	 * enable this to be used as a generic rectangle class
+	 * enable this to be used as a generic area class
 	 */
 	public float width()
 	{
