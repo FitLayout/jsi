@@ -19,17 +19,16 @@
 
 package net.sf.jsi;
 
+import java.io.Serializable;
+import java.util.Properties;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
 import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.stack.TIntStack;
 import gnu.trove.stack.array.TIntArrayStack;
-
-import java.io.Serializable;
-import java.util.Properties;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.Properties;
 
 
 /**
