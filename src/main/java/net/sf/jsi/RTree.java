@@ -17,7 +17,7 @@
 //  License along with this library; if not, write to the Free Software
 //  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-package net.sf.jsi.rtree;
+package net.sf.jsi;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
@@ -30,12 +30,6 @@ import java.util.Properties;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import net.sf.jsi.BuildProperties;
-import net.sf.jsi.Point;
-import net.sf.jsi.Rectangle;
-import net.sf.jsi.PriorityQueue;
-import net.sf.jsi.SpatialIndex;
 
 
 /**

@@ -22,8 +22,6 @@ import gnu.trove.procedure.TIntProcedure;
 
 import java.util.Properties;
 
-import net.sf.jsi.rtree.RTree;
-
 /**
  * A completely useless wrapper class for the RTree class.
  * 

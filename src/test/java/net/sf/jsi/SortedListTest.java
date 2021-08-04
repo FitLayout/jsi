@@ -22,8 +22,6 @@ import java.util.Arrays;
 
 import junit.framework.TestCase;
 
-import net.sf.jsi.rtree.SortedList;
-
 public class SortedListTest extends TestCase {
 
   public SortedListTest(String s) {

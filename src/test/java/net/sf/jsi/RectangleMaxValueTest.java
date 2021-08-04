@@ -3,7 +3,6 @@ package net.sf.jsi;
 import junit.framework.TestCase;
 
 import net.sf.jsi.Rectangle;
-import net.sf.jsi.rtree.RTree;
 
 public class RectangleMaxValueTest extends TestCase {
   public RectangleMaxValueTest(String name) {

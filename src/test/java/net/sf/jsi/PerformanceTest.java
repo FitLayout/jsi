@@ -26,7 +26,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import net.sf.jsi.rtree.RTree;
 import gnu.trove.procedure.TIntProcedure;
 
 import org.junit.Test;
