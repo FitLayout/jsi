@@ -27,7 +27,7 @@ import java.io.Serializable;
  * Used by RTree. There are no public methods in this class.
  * </p>
  */
-public class Node implements Serializable
+class Node implements Serializable
 {
 	private static final long serialVersionUID = -2823316966528817396L;
 	int nodeId = 0;
@@ -158,18 +158,15 @@ public class Node implements Serializable
 	}
 
 
-	public int getEntryCount()
+	int getEntryCount()
 	{
 		return entryCount;
 	}
 
 
-	public int getId(int index)
+	int getId(int index)
 	{
-		if ( index < entryCount ) {
-			return ids[index];
-		}
-		return -1;
+		return index < entryCount ? ids[index] : -1;
 	}
 
 
@@ -179,7 +176,7 @@ public class Node implements Serializable
 	}
 
 
-	public int getLevel()
+	int getLevel()
 	{
 		return level;
 	}
