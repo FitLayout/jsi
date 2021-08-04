@@ -1,4 +1,12 @@
-[![Build Status](https://www.travis-ci.org/aled/jsi.png?branch=master)](https://www.travis-ci.org/aled/jsi)
+IMPORTANT
+---------
+This is a fork of the orignal project aiming at being a stand-alone release w/o any external dependencies and minimal API.
+- It only uses the java.util.logging API for logging.
+- There is only one callback interface.
+- Public API names were changed as to not conflict with other libraries so much.
+
+Note: The original code actually only ever used a very simple int and float based list/stack, so the GNU trove dependency was not necessary.
+The node map is actually a list, because deleted nodes are never removed from it.
 
 Overview
 --------
@@ -51,7 +59,7 @@ Alternatively, maven users can use this repository in their pom.xml:
       <name>sourceforge jsi repository</name>
       <url>http://sourceforge.net/projects/jsi/files/m2_repo</url>
     </repository>
-    
+
     <dependency>
       <groupId>net.sourceforge.jsi</groupId>
       <artifactId>jsi</artifactId>
@@ -70,16 +78,16 @@ This will generate the binary package (jsi-x.y.z.jar) in the target subdirectory
 The following is a list of useful maven targets:
 
     eclipse:eclipse (generate eclipse project files; see below)
-    clean 
+    clean
     compile
     test
     -Dtest=ReferenceCompareTest_10000 test
-    package	
+    package
     site
     assembly:single (create package only)
     site:deploy
     deploy
-  
+
 To import the project into eclipse, run mvn eclipse:eclipse, and then set the `M2_REPO` variable
 in `Window -> Preferences -> Java -> Build Path -> Classpath Variables` to point to your local maven repository (e.g. `~/.m2/repository`)
 
@@ -87,7 +95,7 @@ in `Window -> Preferences -> Java -> Build Path -> Classpath Variables` to point
 Testing
 -------
 
-These are the steps needed to check that the JSI library is working correctly. 
+These are the steps needed to check that the JSI library is working correctly.
 Note this will take a very long time to run:
 
     % cd <location-of-pom.xml>
