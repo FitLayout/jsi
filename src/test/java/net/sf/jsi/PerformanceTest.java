@@ -26,11 +26,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import gnu.trove.procedure.TIntProcedure;
-
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import net.sf.jsi.RTree.AreaCallback;
 
 /**
  * PerformanceTest
@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory;
 public class PerformanceTest {
 
   private static final Logger log = LoggerFactory.getLogger(PerformanceTest.class);
-  private RTree si;
+  private RTree tree;
 
   private float randomFloat(Random r, float min, float max) {
     return (r.nextFloat() * (max - min)) + min;
@@ -65,15 +65,15 @@ public class PerformanceTest {
   abstract class Operation {
     private final int count[] = new int[1];
     private String description;
-    public Random r;
+    public Random random;
 
     public Operation(String description, Random r) {
       this.description = description;
-      this.r = r;
+      this.random = r;
     }
 
-    protected TIntProcedure countProc = new TIntProcedure() {
-      public boolean execute(int value) {
+    protected AreaCallback countProc = new AreaCallback() {
+      @Override public boolean processArea(int value) {
         count[0]++;
         return true;
       }
@@ -93,7 +93,7 @@ public class PerformanceTest {
   private void benchmark(Operation o, int repetitions) {
     long duration = 0;
     long startTime = System.nanoTime();
-    for (int j = 0; j < repetitions; j++) o.execute(si, o.r);
+    for (int j = 0; j < repetitions; j++) o.execute(tree, o.random);
     duration += (System.nanoTime() - startTime);
 
     log.info(o.getDescription() + ", " +
@@ -110,8 +110,8 @@ public class PerformanceTest {
     Properties p = new Properties();
     p.setProperty("MinNodeEntries", "20");
     p.setProperty("MaxNodeEntries", "50");
-    si = new RTree();
-    si.init(p);
+    tree = new RTree();
+    tree.init(p);
 
     final int rectangleCount = 1000000;
     final Area[] rects = new Area[rectangleCount];
@@ -126,7 +126,7 @@ public class PerformanceTest {
       duration = 0;
       startTime = System.nanoTime();
       for (int i = 0; i < rectangleCount; i++) {
-        si.add(rects[i], i);
+        tree.add(rects[i], i);
       }
       duration += (System.nanoTime() - startTime);
       log.info("add " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
@@ -136,7 +136,7 @@ public class PerformanceTest {
       duration = 0;
       startTime = System.nanoTime();
       for (int i = 0; i < rectangleCount; i++) {
-        si.delete(rects[i], i);
+        tree.delete(rects[i], i);
       }
       duration += (System.nanoTime() - startTime);
       log.info("delete " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
@@ -145,11 +145,16 @@ public class PerformanceTest {
     ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
     try {
       for (int i = 0; i < 100; i++) {
-        exec.submit(new Runnable() {public void run() {benchmark(new Operation("nearest", new Random(0)) {void execute(RTree si, Random r) {si.nearest(randomPoint(r), countProc, 0.1f);}}, 100); }});
-        exec.submit(new Runnable() {public void run() {benchmark(new Operation("nearestNUnsorted", new Random(0)) {void execute(RTree si, Random r) {si.nearestNUnsorted(randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
-        exec.submit(new Runnable() {public void run() {benchmark(new Operation("nearestN", new Random(0)) {void execute(RTree si, Random r) {si.nearestN(randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
-        exec.submit(new Runnable() {public void run() {benchmark(new Operation("intersects", new Random(0)) {void execute(RTree si, Random r) {si.intersects(randomRectangle(r, 0.6f), countProc);}}, 100); }});
-        exec.submit(new Runnable() {public void run() {benchmark(new Operation("contains", new Random(0)) {void execute(RTree si, Random r) {si.contains(randomRectangle(r, 0.65f), countProc);}}, 100); }});
+        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearest",          new Random(0)) {
+        	@Override void execute(RTree si, Random r) {si.nearest         (randomPoint(r), countProc, 0.1f);}}, 100); }});
+        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearestNUnsorted", new Random(0)) {
+        	@Override void execute(RTree si, Random r) {si.nearestNUnsorted(randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
+        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearestN",         new Random(0)) {
+        	@Override void execute(RTree si, Random r) {si.nearestN        (randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
+        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("intersects",       new Random(0)) {
+        	@Override void execute(RTree si, Random r) {si.intersects      (randomRectangle(r, 0.6f), countProc);}}, 100); }});
+        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("contains",         new Random(0)) {
+        	@Override void execute(RTree si, Random r) {si.contains(        randomRectangle(r, 0.65f), countProc);}}, 100); }});
       }
       try { exec.awaitTermination(1, TimeUnit.DAYS); } catch (Exception e) {}
     }

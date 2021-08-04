@@ -45,7 +45,7 @@ public class MoveEntriesTest extends TestCase {
     Properties p = new Properties();
     p.setProperty("MinNodeEntries", Integer.toString(minNodeEntries));
     p.setProperty("MaxNodeEntries", Integer.toString(maxNodeEntries));
-    RTree rtree = (RTree) SpatialIndexFactory.newInstance("rtree.RTree", p);
+    RTree rtree = SpatialIndexFactory.newInstance("rtree.RTree", p);
 
     Area[] rects = new Area[numRects];
 

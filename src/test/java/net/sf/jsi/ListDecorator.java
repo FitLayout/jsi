@@ -18,10 +18,10 @@
 
 package net.sf.jsi;
 
-import gnu.trove.procedure.TIntProcedure;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import net.sf.jsi.RTree.AreaCallback;
 
 /**
  * ListDecorator
@@ -33,10 +33,11 @@ public class ListDecorator {
    m_si = si;
  }
  
- class AddToListProcedure implements TIntProcedure {
+ class AddToListProcedure implements AreaCallback {
    private List<Integer> m_list = new ArrayList<Integer>();
    
-   public boolean execute(int id) {
+   @Override
+   public boolean processArea(int id) {
      m_list.add(new Integer(id));
      return true;
    }

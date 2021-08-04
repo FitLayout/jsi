@@ -39,18 +39,22 @@ public class SortedListDecorator extends ListDecorator {
    	return l;
   }
   
+  @Override
   public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance) {
     return sort(super.nearestN(p, maxCount, furthestDistance));
   }
    
+  @Override
   public List<Integer> nearest(Spot p, float furthestDistance) {
     return sort(super.nearest(p, furthestDistance));
   }
    
+  @Override
   public List<Integer> intersects(Area r) {
     return sort(super.intersects(r));
   }
   	 	
+  @Override
   public List<Integer> contains(Area r) {
   	return sort(super.contains(r));
   }

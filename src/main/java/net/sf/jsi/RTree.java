@@ -26,7 +26,6 @@ import java.util.logging.Logger;
 
 import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.procedure.TIntProcedure;
 import gnu.trove.stack.TIntStack;
 import gnu.trove.stack.array.TIntArrayStack;
 
@@ -100,7 +99,21 @@ public class RTree implements Serializable
 	// which can be reused.
 	private TIntStack deletedNodeIds = new TIntArrayStack();
 
+	
+	/**
+	 * Used by various methods to "return" nodes back to the caller.
+	 */
+	@FunctionalInterface
+	public interface AreaCallback
+	{
+		/**
+		 * @return {@code true} if further areas should be processed, {@code false} otherwise.
+		 */
+		boolean processArea(int id);
+	}
 
+	
+	
 	/**
 	 * Constructor. Use init() method to initialize parameters of the RTree.
 	 */
@@ -349,7 +362,7 @@ public class RTree implements Serializable
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
-	public void nearest(Spot p, TIntProcedure v, float furthestDistance)
+	public void nearest(Spot p, AreaCallback v, float furthestDistance)
 	{
 		Node rootNode = getNode(rootNodeId);
 
@@ -357,7 +370,7 @@ public class RTree implements Serializable
 		TIntArrayList nearestIds = new TIntArrayList();
 		nearest(p, rootNode, furthestDistanceSq, nearestIds);
 
-		nearestIds.forEach(v);
+		nearestIds.forEach(v::processArea);
 		nearestIds.reset();
 	}
 
@@ -456,7 +469,7 @@ public class RTree implements Serializable
 	 * Same as nearestN, except the found rectangles are not returned
 	 * in sorted order. This will be faster, if sorting is not required
 	 */
-	public void nearestNUnsorted(Spot p, TIntProcedure v, int count, float furthestDistance)
+	public void nearestNUnsorted(Spot p, AreaCallback v, int count, float furthestDistance)
 	{
 		// This implementation is designed to give good performance
 		// where
@@ -471,7 +484,7 @@ public class RTree implements Serializable
 		createNearestNDistanceQueue(p, count, distanceQueue, furthestDistance);
 
 		while ( distanceQueue.size() > 0 ) {
-			v.execute(distanceQueue.getValue());
+			v.processArea(distanceQueue.getValue());
 			distanceQueue.pop();
 		}
 	}
@@ -503,14 +516,14 @@ public class RTree implements Serializable
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
-	public void nearestN(Spot p, TIntProcedure v, int count, float furthestDistance)
+	public void nearestN(Spot p, AreaCallback v, int count, float furthestDistance)
 	{
 		PriorityQueue distanceQueue = new PriorityQueue(PriorityQueue.SORT_ORDER_DESCENDING);
 		createNearestNDistanceQueue(p, count, distanceQueue, furthestDistance);
 		distanceQueue.setSortOrder(PriorityQueue.SORT_ORDER_ASCENDING);
 
 		while ( distanceQueue.size() > 0 ) {
-			v.execute(distanceQueue.getValue());
+			v.processArea(distanceQueue.getValue());
 			distanceQueue.pop();
 		}
 	}
@@ -525,7 +538,7 @@ public class RTree implements Serializable
 	 * @param v The IntProcedure whose execute() method is is called
 	 *        for each intersecting rectangle.
 	 */
-	public void intersects(Area r, TIntProcedure v)
+	public void intersects(Area r, AreaCallback v)
 	{
 		Node rootNode = getNode(rootNodeId);
 		intersects(r, v, rootNode);
@@ -541,7 +554,7 @@ public class RTree implements Serializable
 	 * @param v The procedure whose visit() method is is called
 	 *        for each contained rectangle.
 	 */
-	public void contains(Area r, TIntProcedure v)
+	public void contains(Area r, AreaCallback v)
 	{
 		// find all rectangles in the tree that are contained by the passed rectangle
 		// written to be non-recursive (should model other searches on this?)
@@ -581,7 +594,7 @@ public class RTree implements Serializable
 				// it is contained by the passed rectangle
 				for ( int i = 0; i < n.entryCount; i++ ) {
 					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
-						if ( !v.execute(n.ids[i]) ) {
+						if ( !v.processArea(n.ids[i]) ) {
 							return;
 						}
 					}
@@ -1020,7 +1033,7 @@ public class RTree implements Serializable
 					nearestIds.add(n.ids[i]);
 				}
 			} else { // for index nodes, only go into them if they potentially could have
-						// a rectangle nearer than actualNearest
+				// a rectangle nearer than actualNearest
 				if ( tempDistanceSq <= furthestDistanceSq ) {
 					// search the child node
 					furthestDistanceSq = nearest(p, getNode(n.ids[i]), furthestDistanceSq, nearestIds);
@@ -1039,12 +1052,12 @@ public class RTree implements Serializable
 	 * TODO rewrite this to be non-recursive? Make sure it
 	 * doesn't slow it down.
 	 */
-	private boolean intersects(Area r, TIntProcedure v, Node n)
+	private boolean intersects(Area r, AreaCallback v, Node n)
 	{
 		for ( int i = 0; i < n.entryCount; i++ ) {
 			if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 				if ( n.isLeaf() ) {
-					if ( !v.execute(n.ids[i]) ) {
+					if ( !v.processArea(n.ids[i]) ) {
 						return false;
 					}
 				} else {

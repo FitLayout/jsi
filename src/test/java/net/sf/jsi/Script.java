@@ -156,7 +156,7 @@ public class Script {
 
     String outputFilename = null;
     if (testType == REFERENCE_COMPARISON) {
-      outputFilename = strTestResultsRoot + "-" + si.getVersion() +
+      outputFilename = strTestResultsRoot + "-rtree" +
       	"-" + new SimpleDateFormat("yyMMddHHmmss").format(new Date());
     } else {
       outputFilename = strTestResultsRoot + "-reference";
@@ -352,7 +352,7 @@ public class Script {
 
               while (i.hasNext()) {
                 tempBuffer.append(' ');
-                tempBuffer.append((Integer)i.next()).toString();
+                tempBuffer.append(i.next()).toString();
               }
               writeOutput(tempBuffer.toString(), outputFile, referenceFile);
             }
@@ -400,7 +400,7 @@ public class Script {
             Iterator<Integer> i = l.iterator();
             while (i.hasNext()) {
               outputBuffer.append(" ");
-              outputBuffer.append((Integer)i.next()).toString();
+              outputBuffer.append(i.next()).toString();
             }
             writeOutput(outputBuffer.toString(), outputFile, referenceFile);
           } 

@@ -18,20 +18,20 @@
 
 package net.sf.jsi;
 
-import gnu.trove.procedure.TIntProcedure;
-
 import java.util.Properties;
 import java.util.Random;
 
 import junit.framework.TestCase;
+import net.sf.jsi.RTree.AreaCallback;
 
 public class DeleteAllEntriesTest extends TestCase {
 
   Area[] rects = null;
   
-  class Counter implements TIntProcedure {
+  class Counter implements AreaCallback {
     public int count = 0;
-    public boolean execute(int arg0) {
+    @Override
+    public boolean processArea(int id) {
       count++;
       return true;
     }
@@ -64,7 +64,7 @@ public class DeleteAllEntriesTest extends TestCase {
     Properties p = new Properties();
     p.setProperty("MinNodeEntries", Integer.toString(minNodeEntries));
     p.setProperty("MaxNodeEntries", Integer.toString(maxNodeEntries));
-    RTree rtree = (RTree) SpatialIndexFactory.newInstance("rtree.RTree", p);
+    RTree rtree = SpatialIndexFactory.newInstance("rtree.RTree", p);
     
     for (int i = 0; i <= numRects; i+=100) {
       // add some entries
