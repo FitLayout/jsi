@@ -64,27 +64,14 @@ final class IntArray implements Externalizable
 	
 	public void reset()
 	{
-		Arrays.fill(_data, 0, _size, 0);
 		_size = 0;
 	}
 
 	
 	public void clear()
 	{
-		if ( _data.length>16 ) _data = EMPTY; else Arrays.fill(_data, 0, _size, 0);
+		if ( _data.length>16 ) _data = EMPTY;
 		_size = 0;
-	}
-	
-	
-	public void trim()
-	{
-		_data = _size==0 ? EMPTY : _size==_data.length ? _data : Arrays.copyOf(_data, _size);
-	}
-	
-	
-	public int[] values()
-	{
-		return Arrays.copyOf(_data, _size);
 	}
 	
 	
