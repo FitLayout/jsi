@@ -20,11 +20,10 @@
 package net.sf.jsi;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import gnu.trove.map.hash.TIntObjectHashMap;
 
 
 /**
@@ -66,7 +65,7 @@ public class RTree implements Serializable
 	// map of nodeId -> node object
 	// TODO eliminate this map - it should not be needed. Nodes
 	// can be found by traversing the tree.
-	private TIntObjectHashMap<Node> nodeMap = new TIntObjectHashMap<Node>();
+	private ArrayList<Node> nodeMap = new ArrayList<>();
 
 	// internal consistency checking - set to true if debugging tree corruption
 	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
@@ -87,9 +86,6 @@ public class RTree implements Serializable
 	private int treeHeight = 1; // leaves are always level 1
 	private int rootNodeId = 0;
 	private int size = 0;
-
-	// Enables creation of new nodes
-	private int highestUsedNodeId = rootNodeId;
 
 	// Deleted node objects are retained in the nodeMap,
 	// so that they can be reused. Store the IDs of nodes
@@ -175,7 +171,7 @@ public class RTree implements Serializable
 		}
 
 		Node root = new Node(rootNodeId, 1, maxNodeEntries);
-		nodeMap.put(rootNodeId, root);
+		putNode(rootNodeId, root);
 
 		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
@@ -237,7 +233,7 @@ public class RTree implements Serializable
 			Node root = new Node(rootNodeId, treeHeight, maxNodeEntries);
 			root.addEntry(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, newNode.nodeId);
 			root.addEntry(oldRoot.mbrMinX, oldRoot.mbrMinY, oldRoot.mbrMaxX, oldRoot.mbrMaxY, oldRoot.nodeId);
-			nodeMap.put(rootNodeId, root);
+			putNode(rootNodeId, root);
 		}
 	}
 
@@ -312,6 +308,7 @@ public class RTree implements Serializable
 		// entry is not a leaf node, delete the root (it's entry becomes the new root)
 		Node root = getNode(rootNodeId);
 		while ( root.entryCount == 1 && treeHeight > 1 ) {
+			// TODO: set nodeMap(rootNodeId) to null
 			deletedNodeIds.push(rootNodeId);
 			root.entryCount = 0;
 			rootNodeId = root.ids[0];
@@ -636,22 +633,22 @@ public class RTree implements Serializable
 	 */
 	private int getNextNodeId()
 	{
-		int nextNodeId = 0;
-		if ( deletedNodeIds.size() > 0 ) {
-			nextNodeId = deletedNodeIds.pop();
-		} else {
-			nextNodeId = 1 + highestUsedNodeId++;
-		}
-		return nextNodeId;
+		return deletedNodeIds.isEmpty() ? nodeMap.size() : deletedNodeIds.pop();
 	}
 
+	
+	private void putNode(int id, Node node)
+	{
+		if ( id==nodeMap.size() ) nodeMap.add(node); else nodeMap.set(id, node);
+	}
 
+	
 	/**
 	 * Get a node object, given the ID of the node.
 	 */
 	private Node getNode(int id)
 	{
-		return nodeMap.get(id);
+		return id<0 || id>=nodeMap.size() ? null : nodeMap.get(id);
 	}
 
 
@@ -691,7 +688,7 @@ public class RTree implements Serializable
 
 		Node newNode = null;
 		newNode = new Node(getNextNodeId(), n.level, maxNodeEntries);
-		nodeMap.put(newNode.nodeId, newNode);
+		putNode(newNode.nodeId, newNode);
 
 		pickSeeds(n, newRectMinX, newRectMinY, newRectMaxX, newRectMaxY, newId, newNode); // this also sets the entryCount to 1
 
