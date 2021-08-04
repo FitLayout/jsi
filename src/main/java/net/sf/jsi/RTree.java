@@ -937,7 +937,7 @@ public class RTree implements Serializable
 	 * entry not yet in a group, calculate the area increase required
 	 * in the covering rectangles of each group
 	 */
-	private int pickNext(Node n, Node newNode)
+	private int pickNext(final Node n, final Node newNode)
 	{
 		float maxDifference = Float.NEGATIVE_INFINITY;
 		int next = 0;
@@ -949,6 +949,9 @@ public class RTree implements Serializable
 			log.log(Level.FINE, "pickNext()");
 		}
 
+		final float rn = Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
+		final float rnn = Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
+
 		for ( int i = 0; i < maxNodeEntries; i++ ) {
 			if ( entryStatus[i] == ENTRY_STATUS_UNASSIGNED ) {
 
@@ -956,9 +959,9 @@ public class RTree implements Serializable
 					log.log(Level.SEVERE, "Error: Node " + n.nodeId + ", entry " + i + " is null");
 				}
 
-				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
+				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, rn, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
 					n.entriesMaxY[i]);
-				float newNodeIncrease = Area.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, n.entriesMinX[i],
+				float newNodeIncrease = Area.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, rnn, n.entriesMinX[i],
 					n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]);
 
 				float difference = Math.abs(nIncrease - newNodeIncrease);
@@ -970,11 +973,9 @@ public class RTree implements Serializable
 						nextGroup = 0;
 					} else if ( newNodeIncrease < nIncrease ) {
 						nextGroup = 1;
-					} else if ( Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY) < Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX,
-						newNode.mbrMaxY) ) {
+					} else if ( rn < rnn ) {
 						nextGroup = 0;
-					} else if ( Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY) < Area.area(n.mbrMinX, n.mbrMinY,
-						n.mbrMaxX, n.mbrMaxY) ) {
+					} else if ( rnn < rn ) {
 						nextGroup = 1;
 					} else if ( newNode.entryCount < maxNodeEntries / 2 ) {
 						nextGroup = 0;
@@ -1103,12 +1104,12 @@ public class RTree implements Serializable
 				if ( n.mbrMinX != parent.entriesMinX[parentEntry] || n.mbrMinY != parent.entriesMinY[parentEntry]
 					|| n.mbrMaxX != parent.entriesMaxX[parentEntry] || n.mbrMaxY != parent.entriesMaxY[parentEntry] ) {
 					float deletedMinX = parent.entriesMinX[parentEntry];
-					float deletedMinY = parent.entriesMinY[parentEntry];
-					float deletedMaxX = parent.entriesMaxX[parentEntry];
-					float deletedMaxY = parent.entriesMaxY[parentEntry];
 					parent.entriesMinX[parentEntry] = n.mbrMinX;
+					float deletedMinY = parent.entriesMinY[parentEntry];
 					parent.entriesMinY[parentEntry] = n.mbrMinY;
+					float deletedMaxX = parent.entriesMaxX[parentEntry];
 					parent.entriesMaxX[parentEntry] = n.mbrMaxX;
+					float deletedMaxY = parent.entriesMaxY[parentEntry];
 					parent.entriesMaxY[parentEntry] = n.mbrMaxY;
 					parent.recalculateMBRIfInfluencedBy(deletedMinX, deletedMinY, deletedMaxX, deletedMaxY);
 				}
@@ -1137,7 +1138,7 @@ public class RTree implements Serializable
 	/**
 	 * Used by add(). Chooses a leaf to add the rectangle to.
 	 */
-	private Node chooseNode(float minX, float minY, float maxX, float maxY, int level)
+	private Node chooseNode(final float minX, final float minY, final float maxX, final float maxY, int level)
 	{
 		// CL1 [Initialize] Set N to be the root node
 		Node n = getNode(rootNodeId);
@@ -1157,17 +1158,20 @@ public class RTree implements Serializable
 			// CL3 [Choose subtree] If N is not at the desired level, let F be the entry in N
 			// whose rectangle FI needs least enlargement to include EI. Resolve
 			// ties by choosing the entry with the rectangle of smaller area.
-			float leastEnlargement = Area.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0], minX, minY, maxX, maxY);
+			float areaNIndex = Area.area(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0]);
+			float leastEnlargement = Area.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0], areaNIndex, minX, minY, maxX,
+				maxY);
 			int index = 0; // index of rectangle in subtree
 			for ( int i = 1; i < n.entryCount; i++ ) {
 				float tempMinX = n.entriesMinX[i];
 				float tempMinY = n.entriesMinY[i];
 				float tempMaxX = n.entriesMaxX[i];
 				float tempMaxY = n.entriesMaxY[i];
-				float tempEnlargement = Area.enlargement(tempMinX, tempMinY, tempMaxX, tempMaxY, minX, minY, maxX, maxY);
-				if ( (tempEnlargement < leastEnlargement) || ((tempEnlargement == leastEnlargement) && (Area.area(tempMinX, tempMinY, tempMaxX,
-					tempMaxY) < Area.area(n.entriesMinX[index], n.entriesMinY[index], n.entriesMaxX[index], n.entriesMaxY[index]))) ) {
+				float tempArea = Area.area(tempMinX, tempMinY, tempMaxX, tempMaxY);
+				float tempEnlargement = Area.enlargement(tempMinX, tempMinY, tempMaxX, tempMaxY, tempArea, minX, minY, maxX, maxY);
+				if ( (tempEnlargement < leastEnlargement) || ((tempEnlargement == leastEnlargement) && (tempArea < areaNIndex)) ) {
 					index = i;
+					areaNIndex = tempArea;
 					leastEnlargement = tempEnlargement;
 				}
 			}

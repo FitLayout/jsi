@@ -307,6 +307,29 @@ public class Area
 	}
 
 
+	static float enlargement(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r1Area, float r2MinX, float r2MinY, float r2MaxX,
+		float r2MaxY)
+	{
+		if ( r1Area == Float.POSITIVE_INFINITY ) {
+			return 0; // cannot enlarge an infinite area...
+		}
+
+		if ( r2MinX < r1MinX ) r1MinX = r2MinX;
+		if ( r2MinY < r1MinY ) r1MinY = r2MinY;
+		if ( r2MaxX > r1MaxX ) r1MaxX = r2MaxX;
+		if ( r2MaxY > r1MaxY ) r1MaxY = r2MaxY;
+
+		float r1r2UnionArea = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
+
+		if ( r1r2UnionArea == Float.POSITIVE_INFINITY ) {
+			// if a finite area is enlarged and becomes infinite,
+			// then the enlargement must be infinite.
+			return Float.POSITIVE_INFINITY;
+		}
+		return r1r2UnionArea - r1Area;
+	}
+
+
 	/**
 	 * Calculate the area by which a area would be enlarged if
 	 * added to the passed area..
@@ -325,24 +348,7 @@ public class Area
 	static public float enlargement(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX, float r2MaxY)
 	{
 		float r1Area = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
-
-		if ( r1Area == Float.POSITIVE_INFINITY ) {
-			return 0; // cannot enlarge an infinite area...
-		}
-
-		if ( r2MinX < r1MinX ) r1MinX = r2MinX;
-		if ( r2MinY < r1MinY ) r1MinY = r2MinY;
-		if ( r2MaxX > r1MaxX ) r1MaxX = r2MaxX;
-		if ( r2MaxY > r1MaxY ) r1MaxY = r2MaxY;
-
-		float r1r2UnionArea = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
-
-		if ( r1r2UnionArea == Float.POSITIVE_INFINITY ) {
-			// if a finite area is enlarged and becomes infinite,
-			// then the enlargement must be infinite.
-			return Float.POSITIVE_INFINITY;
-		}
-		return r1r2UnionArea - r1Area;
+		return enlargement(r1MinX, r1MinY, r1MaxX, r1MaxY, r1Area, r2MinX, r2MinY, r2MaxX, r2MaxY);
 	}
 
 
