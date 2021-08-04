@@ -27,9 +27,9 @@ import java.util.List;
  * ListDecorator
  */
 public class ListDecorator {
- SpatialIndex m_si = null;
+ RTree m_si = null;
  
- public ListDecorator(SpatialIndex si) {
+ public ListDecorator(RTree si) {
    m_si = si;
  }
  

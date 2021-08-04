@@ -51,7 +51,7 @@ import org.slf4j.LoggerFactory;
  * primitive collections from the trove4j library.
  * </p>
  */
-public class RTree implements SpatialIndex, Serializable
+public class RTree implements Serializable
 {
 	private static final long serialVersionUID = 5946232781609920309L;
 	private static final Logger log = LoggerFactory.getLogger(RTree.class);
@@ -128,9 +128,6 @@ public class RTree implements SpatialIndex, Serializable
 	 * in a node. The default value is half of the MaxNodeEntries value (rounded
 	 * down), which is used if the property is not specified or is less than 1.
 	 * </ul>
-	 * </p>
-	 *
-	 * @see net.sf.jsi.SpatialIndex#init(Properties)
 	 */
 	public void init(Properties props)
 	{
@@ -172,7 +169,12 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#add(Area, int)
+	 * Adds a new rectangle to the spatial index
+	 *
+	 * @param r The rectangle to add to the spatial index.
+	 * @param id The ID of the rectangle to add to the spatial index.
+	 *        The result of adding more than one rectangle with
+	 *        the same ID is undefined.
 	 */
 	public void add(Area r, int id)
 	{
@@ -230,7 +232,15 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#delete(Area, int)
+	 * Deletes a rectangle from the spatial index
+	 *
+	 * @param r The rectangle to delete from the spatial index
+	 * @param id The ID of the rectangle to delete from the spatial
+	 *        index
+	 *
+	 * @return true if the rectangle was deleted
+	 *         false if the rectangle was not found, or the
+	 *         rectangle was found but with a different ID
 	 */
 	public boolean delete(Area r, int id)
 	{
@@ -317,7 +327,26 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearest(Spot, TIntProcedure, float)
+	 * Finds the nearest rectangles to the passed rectangle and calls
+	 * v.execute(id) for each one.
+	 *
+	 * If multiple rectangles are equally near, they will
+	 * all be returned.
+	 *
+	 * @param p The point for which this method finds the
+	 *        nearest neighbours.
+	 *
+	 * @param v The IntProcedure whose execute() method is is called
+	 *        for each nearest neighbour.
+	 *
+	 * @param furthestDistance The furthest distance away from the rectangle
+	 *        to search. Rectangles further than this will not be found.
+	 *
+	 *        This should be as small as possible to minimise
+	 *        the search time.
+	 *
+	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
+	 *        no matter how far away, although this will slow down the algorithm.
 	 */
 	public void nearest(Spot p, TIntProcedure v, float furthestDistance)
 	{
@@ -423,7 +452,8 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearestNUnsorted(Spot, TIntProcedure, int, float)
+	 * Same as nearestN, except the found rectangles are not returned
+	 * in sorted order. This will be faster, if sorting is not required
 	 */
 	public void nearestNUnsorted(Spot p, TIntProcedure v, int count, float furthestDistance)
 	{
@@ -447,7 +477,30 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#nearestN(Spot, TIntProcedure, int, float)
+	 * Finds the N nearest rectangles to the passed rectangle, and calls
+	 * execute(id, distance) on each one, in order of increasing distance.
+	 *
+	 * Note that fewer than N rectangles may be found if fewer entries
+	 * exist within the specified furthest distance, or more if rectangles
+	 * N and N+1 have equal distances.
+	 *
+	 * @param p The point for which this method finds the
+	 *        nearest neighbours.
+	 *
+	 * @param v The IntfloatProcedure whose execute() method is is called
+	 *        for each nearest neighbour.
+	 *
+	 * @param count The desired number of rectangles to find (but note that
+	 *        fewer or more may be returned)
+	 *
+	 * @param furthestDistance The furthest distance away from the rectangle
+	 *        to search. Rectangles further than this will not be found.
+	 *
+	 *        This should be as small as possible to minimise
+	 *        the search time.
+	 *
+	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
+	 *        no matter how far away, although this will slow down the algorithm.
 	 */
 	public void nearestN(Spot p, TIntProcedure v, int count, float furthestDistance)
 	{
@@ -463,7 +516,13 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#intersects(Area, TIntProcedure)
+	 * Finds all rectangles that intersect the passed rectangle.
+	 *
+	 * @param r The rectangle for which this method finds
+	 *        intersecting rectangles.
+	 *
+	 * @param v The IntProcedure whose execute() method is is called
+	 *        for each intersecting rectangle.
 	 */
 	public void intersects(Area r, TIntProcedure v)
 	{
@@ -473,7 +532,13 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#contains(Area, TIntProcedure)
+	 * Finds all rectangles contained by the passed rectangle.
+	 *
+	 * @param r The rectangle for which this method finds
+	 *        contained rectangles.
+	 *
+	 * @param v The procedure whose visit() method is is called
+	 *        for each contained rectangle.
 	 */
 	public void contains(Area r, TIntProcedure v)
 	{
@@ -528,7 +593,7 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#size()
+	 * Returns the number of entries in the spatial index
 	 */
 	public int size()
 	{
@@ -537,7 +602,8 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#getBounds()
+	 * Returns the bounds of all the entries in the spatial index,
+	 * or null if there are no entries.
 	 */
 	public Area getBounds()
 	{
@@ -556,15 +622,14 @@ public class RTree implements SpatialIndex, Serializable
 
 
 	/**
-	 * @see net.sf.jsi.SpatialIndex#getVersion()
+	 * Returns a string identifying the type of
+	 * spatial index, and the version number,
+	 * eg "SimpleIndex-0.1"
 	 */
 	public String getVersion()
 	{
 		return "RTree-" + BuildProperties.getVersion();
 	}
-	// -------------------------------------------------------------------------
-	// end of SpatialIndex methods
-	// -------------------------------------------------------------------------
 
 
 	/**

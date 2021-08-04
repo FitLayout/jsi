@@ -23,14 +23,14 @@ import java.util.List;
 
 import net.sf.jsi.Spot;
 import net.sf.jsi.Area;
-import net.sf.jsi.SpatialIndex;
+import net.sf.jsi.RTree;
 
 /**
  * SortedListDecorator
  */
 public class SortedListDecorator extends ListDecorator {
    
-  public SortedListDecorator(SpatialIndex si) {
+  public SortedListDecorator(RTree si) {
     super(si);
   }
    

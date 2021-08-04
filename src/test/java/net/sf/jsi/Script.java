@@ -104,7 +104,7 @@ public class Script {
       }
     }
     
-    SpatialIndex si = SpatialIndexFactory.newInstance(indexType, indexProperties);
+    RTree si = SpatialIndexFactory.newInstance(indexType, indexProperties);
     
     ListDecorator ld = new SortedListDecorator(si);
     

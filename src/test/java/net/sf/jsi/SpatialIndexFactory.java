@@ -1,4 +1,4 @@
-//   SpatialIndexFactory.java
+//   RTreeFactory.java
 //   Java Spatial Index Library
 //   Copyright (C) 2002-2005 Infomatiq Limited.
 //  
@@ -23,7 +23,7 @@ import java.util.Properties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import net.sf.jsi.SpatialIndex;
+import net.sf.jsi.RTree;
 
 /**
  * Factory class used to create instances of spatial indexes
@@ -33,24 +33,13 @@ public class SpatialIndexFactory {
   private final static Logger log = 
     LoggerFactory.getLogger(SpatialIndexFactory.class);
 
-  public static SpatialIndex newInstance(String type) {
+  public static RTree newInstance(String type) {
     return newInstance(type, null);
   }
   
-  public static SpatialIndex newInstance(String type, Properties props) {
-    SpatialIndex si = null;
-    String className = "net.sf.jsi." + type;
-    try {
-      si = (SpatialIndex) Class.forName(className).newInstance();
-      si.init(props);
-    } catch (ClassNotFoundException cnfe) {
-      log.error(cnfe.toString());
-    } catch (IllegalAccessException iae) {
-      log.error(iae.toString());    
-    } catch (InstantiationException ie) {
-      log.error(ie.toString());   
-    }
-    
+  public static RTree newInstance(String type, Properties props) {
+    RTree si = new RTree();
+    si.init(props);
     return si;
   }
 }
