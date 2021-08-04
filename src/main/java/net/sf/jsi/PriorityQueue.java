@@ -20,9 +20,6 @@ package net.sf.jsi;
 
 import java.io.Serializable;
 
-import gnu.trove.list.array.TIntArrayList;
-import gnu.trove.list.array.TFloatArrayList;
-
 
 /**
  * <p>
@@ -76,8 +73,8 @@ class PriorityQueue implements Serializable
 	public static final boolean SORT_ORDER_ASCENDING = true;
 	public static final boolean SORT_ORDER_DESCENDING = false;
 
-	private TIntArrayList values = null;
-	private TFloatArrayList priorities = null;
+	private IntArray values = null;
+	private FloatArray priorities = null;
 	private boolean sortOrder = SORT_ORDER_ASCENDING;
 
 	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
@@ -92,8 +89,8 @@ class PriorityQueue implements Serializable
 	public PriorityQueue(boolean sortOrder, int initialCapacity)
 	{
 		this.sortOrder = sortOrder;
-		values = new TIntArrayList(initialCapacity);
-		priorities = new TFloatArrayList(initialCapacity);
+		values = new IntArray(initialCapacity);
+		priorities = new FloatArray(initialCapacity);
 	}
 
 
@@ -224,11 +221,8 @@ class PriorityQueue implements Serializable
 
 		// record the value/priority of the last entry
 		int lastIndex = values.size() - 1;
-		int tempValue = values.get(lastIndex);
-		float tempPriority = priorities.get(lastIndex);
-
-		values.removeAt(lastIndex);
-		priorities.removeAt(lastIndex);
+		int tempValue = values.pop();
+		float tempPriority = priorities.pop();
 
 		if ( lastIndex > 0 ) {
 			demote(0, tempValue, tempPriority);

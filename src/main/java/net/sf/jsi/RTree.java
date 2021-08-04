@@ -24,10 +24,7 @@ import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import gnu.trove.list.array.TIntArrayList;
 import gnu.trove.map.hash.TIntObjectHashMap;
-import gnu.trove.stack.TIntStack;
-import gnu.trove.stack.array.TIntArrayStack;
 
 
 /**
@@ -83,8 +80,8 @@ public class RTree implements Serializable
 	// stacks used to store nodeId and entry index of each node
 	// from the root down to the leaf. Enables fast lookup
 	// of nodes when a split is propagated up the tree.
-	private TIntStack parents = new TIntArrayStack();
-	private TIntStack parentsEntry = new TIntArrayStack();
+	private IntArray parents = new IntArray();
+	private IntArray parentsEntry = new IntArray();
 
 	// initialisation
 	private int treeHeight = 1; // leaves are always level 1
@@ -97,7 +94,7 @@ public class RTree implements Serializable
 	// Deleted node objects are retained in the nodeMap,
 	// so that they can be reused. Store the IDs of nodes
 	// which can be reused.
-	private TIntStack deletedNodeIds = new TIntArrayStack();
+	private IntArray deletedNodeIds = new IntArray();
 
 	
 	/**
@@ -367,11 +364,9 @@ public class RTree implements Serializable
 		Node rootNode = getNode(rootNodeId);
 
 		float furthestDistanceSq = furthestDistance * furthestDistance;
-		TIntArrayList nearestIds = new TIntArrayList();
+		IntArray nearestIds = new IntArray();
 		nearest(p, rootNode, furthestDistanceSq, nearestIds);
-
-		nearestIds.forEach(v::processArea);
-		nearestIds.reset();
+		nearestIds.forEach(v);
 	}
 
 
@@ -382,13 +377,13 @@ public class RTree implements Serializable
 			return;
 		}
 
-		TIntStack parents = new TIntArrayStack();
+		IntArray parents = new IntArray();
 		parents.push(rootNodeId);
 
-		TIntStack parentsEntry = new TIntArrayStack();
+		IntArray parentsEntry = new IntArray();
 		parentsEntry.push(-1);
 
-		TIntArrayList savedValues = new TIntArrayList();
+		IntArray savedValues = new IntArray();
 		float savedPriority = 0;
 
 		// TODO: possible shortcut here - could test for intersection with the
@@ -558,10 +553,10 @@ public class RTree implements Serializable
 	{
 		// find all rectangles in the tree that are contained by the passed rectangle
 		// written to be non-recursive (should model other searches on this?)
-		TIntStack parents = new TIntArrayStack();
+		IntArray parents = new IntArray();
 		parents.push(rootNodeId);
 
-		TIntStack parentsEntry = new TIntArrayStack();
+		IntArray parentsEntry = new IntArray();
 		parentsEntry.push(-1);
 
 		// TODO: possible shortcut here - could test for intersection with the
@@ -1020,7 +1015,7 @@ public class RTree implements Serializable
 	 * entry IDs (it is an array, rather than a single value, in case
 	 * multiple entries are equally near)
 	 */
-	private float nearest(Spot p, Node n, float furthestDistanceSq, TIntArrayList nearestIds)
+	private float nearest(Spot p, Node n, float furthestDistanceSq, IntArray nearestIds)
 	{
 		for ( int i = 0; i < n.entryCount; i++ ) {
 			float tempDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
@@ -1087,7 +1082,7 @@ public class RTree implements Serializable
 		Node parent = null;
 		int parentEntry = 0;
 
-		TIntStack eliminatedNodeIds = new TIntArrayStack();
+		IntArray eliminatedNodeIds = new IntArray();
 
 		// CT2 [Find parent entry] If N is the root, go to CT6. Otherwise
 		// let P be the parent of N, and let En be N's entry in P
