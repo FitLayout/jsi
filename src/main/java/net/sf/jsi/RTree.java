@@ -623,17 +623,6 @@ public class RTree implements Serializable
 
 
 	/**
-	 * Returns a string identifying the type of
-	 * spatial index, and the version number,
-	 * eg "SimpleIndex-0.1"
-	 */
-	public String getVersion()
-	{
-		return "RTree-" + BuildProperties.getVersion();
-	}
-
-
-	/**
 	 * Get the next available node ID. Reuse deleted node IDs if
 	 * possible
 	 */
