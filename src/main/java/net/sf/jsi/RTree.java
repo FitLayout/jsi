@@ -21,6 +21,7 @@ package net.sf.jsi;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Properties;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -73,8 +74,8 @@ public class RTree implements Serializable
 	// used to mark the status of entries during a node split
 	private final static int ENTRY_STATUS_ASSIGNED = 0;
 	private final static int ENTRY_STATUS_UNASSIGNED = 1;
-	private byte[] entryStatus = null;
-	private byte[] initialEntryStatus = null;
+	private final byte[] entryStatus;
+	private final byte[] initialEntryStatus;
 
 	// stacks used to store nodeId and entry index of each node
 	// from the root down to the leaf. Enables fast lookup
@@ -107,24 +108,12 @@ public class RTree implements Serializable
 
 	
 	
-	/**
-	 * Constructor. Use init() method to initialize parameters of the RTree.
-	 */
 	public RTree()
 	{
+		this(null);
 	}
 
-
-	// -------------------------------------------------------------------------
-	// public implementation of SpatialIndex interface:
-	// init(Properties)
-	// add(Rectangle, int)
-	// delete(Rectangle, int)
-	// nearest(Point, TIntProcedure, float)
-	// intersects(Rectangle, TIntProcedure)
-	// contains(Rectangle, TIntProcedure)
-	// size()
-	// -------------------------------------------------------------------------
+	
 	/**
 	 * <p>
 	 * Initialize implementation dependent properties of the RTree.
@@ -138,7 +127,7 @@ public class RTree implements Serializable
 	 * down), which is used if the property is not specified or is less than 1.
 	 * </ul>
 	 */
-	public void init(Properties props)
+	public RTree(Properties props)
 	{
 		if ( props == null ) {
 			// use sensible defaults if null is passed in.
@@ -165,13 +154,8 @@ public class RTree implements Serializable
 
 		entryStatus = new byte[maxNodeEntries];
 		initialEntryStatus = new byte[maxNodeEntries];
-
-		for ( int i = 0; i < maxNodeEntries; i++ ) {
-			initialEntryStatus[i] = ENTRY_STATUS_UNASSIGNED;
-		}
-
-		Node root = new Node(rootNodeId, 1, maxNodeEntries);
-		putNode(rootNodeId, root);
+		Arrays.fill(initialEntryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
+		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
 
 		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
