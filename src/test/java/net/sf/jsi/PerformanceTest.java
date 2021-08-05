@@ -109,8 +109,7 @@ public class PerformanceTest {
     Properties p = new Properties();
     p.setProperty("MinNodeEntries", "20");
     p.setProperty("MaxNodeEntries", "50");
-    tree = new RTree();
-    tree.init(p);
+    tree = new RTree(p);
 
     final int rectangleCount = 1000000;
     final Area[] rects = new Area[rectangleCount];

@@ -30,8 +30,6 @@ public class SpatialIndexFactory {
   }
   
   public static RTree newInstance(String type, Properties props) {
-    RTree si = new RTree();
-    si.init(props);
-    return si;
+    return new RTree(props);
   }
 }

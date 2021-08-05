@@ -11,7 +11,6 @@ public class RectangleMaxValueTest extends TestCase {
 
   public void testMaxValue() {
     RTree rTree = new RTree();
-    rTree.init(null);
     rTree.add(new Area(8.0f, 6.0f, Float.MAX_VALUE, Float.MAX_VALUE), 1);
     rTree.add(new Area(1.0f, 5.0f, Float.MAX_VALUE, Float.MAX_VALUE), 2);
     rTree.add(new Area(10.0f, 6.0f, Float.MAX_VALUE, Float.MAX_VALUE), 3);

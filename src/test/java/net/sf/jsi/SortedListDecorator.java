@@ -21,10 +21,6 @@ package net.sf.jsi;
 import java.util.Collections;
 import java.util.List;
 
-import net.sf.jsi.Spot;
-import net.sf.jsi.Area;
-import net.sf.jsi.RTree;
-
 /**
  * SortedListDecorator
  */
