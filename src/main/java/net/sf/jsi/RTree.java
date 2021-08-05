@@ -53,27 +53,31 @@ public class RTree implements Serializable
 	private static final Logger log    = Logger.getLogger(RTree.class.getName());
 	private static final Logger logDel = Logger.getLogger(RTree.class.getName() + "-delete");
 
+	// internal consistency checking - set to true if debugging tree corruption
+	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
+
+	private final static int DEFAULT_MAX_NODE_ENTRIES = 50;
+	private final static int DEFAULT_MIN_NODE_ENTRIES = 20;
+	private final static int ENTRY_STATUS_ASSIGNED = 0;
+	private final static int ENTRY_STATUS_UNASSIGNED = 1;
+
+	
 	private final boolean isDebug    = log.isLoggable(Level.FINE);
 	private final boolean isDebugDel = logDel.isLoggable(Level.FINE);
 
-	
 	// parameters of the tree
-	private final static int DEFAULT_MAX_NODE_ENTRIES = 50;
-	private final static int DEFAULT_MIN_NODE_ENTRIES = 20;
 	final int maxNodeEntries;
 	final int minNodeEntries;
 
 	// map of nodeId -> node object
-	// TODO eliminate this map - it should not be needed. Nodes
-	// can be found by traversing the tree.
+	// TODO eliminate this map - it should not be needed. Nodes can be found by traversing the tree.
 	private final ArrayList<Node> nodeMap = new ArrayList<>();
 
-	// internal consistency checking - set to true if debugging tree corruption
-	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
-
+	// Deleted node objects are retained in the nodeMap, so that they can be reused.
+	// Store the IDs of nodes which can be reused.
+	private final IntArray deletedNodeIds = new IntArray();
+	
 	// used to mark the status of entries during a node split
-	private final static int ENTRY_STATUS_ASSIGNED = 0;
-	private final static int ENTRY_STATUS_UNASSIGNED = 1;
 	private final byte[] entryStatus;
 	private final byte[] initialEntryStatus;
 
@@ -83,15 +87,10 @@ public class RTree implements Serializable
 	private final IntArray parents = new IntArray();
 	private final IntArray parentsEntry = new IntArray();
 
-	// initialisation
 	private int treeHeight = 1; // leaves are always level 1
 	private int rootNodeId = 0;
 	private int size = 0;
 
-	// Deleted node objects are retained in the nodeMap,
-	// so that they can be reused. Store the IDs of nodes
-	// which can be reused.
-	private final IntArray deletedNodeIds = new IntArray();
 
 	
 	/**
@@ -160,6 +159,53 @@ public class RTree implements Serializable
 		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
 
+	
+	/**
+	 * Returns the number of entries in the spatial index
+	 */
+	public int size()
+	{
+		return size;
+	}
+
+	
+	public void clear()
+	{
+		nodeMap.clear();
+		deletedNodeIds.clear();
+		Arrays.fill(entryStatus, (byte)0);
+		Arrays.fill(initialEntryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
+		parents.clear();
+		parentsEntry.clear();
+		treeHeight = 1;
+		rootNodeId = 0;
+		size = 0;
+		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
+	}
+
+	
+	/**
+	 * Returns the bounds of all the entries in the spatial index,
+	 * or null if there are no entries.
+	 */
+	public Area getBounds()
+	{
+		Area bounds = null;
+
+		Node n = getNode(getRootNodeId());
+		if ( n != null && n.entryCount > 0 ) {
+			bounds = new Area();
+			bounds.minX = n.mbrMinX;
+			bounds.minY = n.mbrMinY;
+			bounds.maxX = n.mbrMaxX;
+			bounds.maxY = n.mbrMaxY;
+		}
+		return bounds;
+	}
+
+
+	
+	
 
 	/**
 	 * Adds a new rectangle to the spatial index
@@ -579,35 +625,6 @@ public class RTree implements Serializable
 			parents.pop();
 			parentsEntry.pop();
 		}
-	}
-
-
-	/**
-	 * Returns the number of entries in the spatial index
-	 */
-	public int size()
-	{
-		return size;
-	}
-
-
-	/**
-	 * Returns the bounds of all the entries in the spatial index,
-	 * or null if there are no entries.
-	 */
-	public Area getBounds()
-	{
-		Area bounds = null;
-
-		Node n = getNode(getRootNodeId());
-		if ( n != null && n.entryCount > 0 ) {
-			bounds = new Area();
-			bounds.minX = n.mbrMinX;
-			bounds.minY = n.mbrMinY;
-			bounds.maxX = n.mbrMaxX;
-			bounds.maxY = n.mbrMaxY;
-		}
-		return bounds;
 	}
 
 
