@@ -41,14 +41,14 @@ import java.util.logging.Logger;
  * </p>
  *
  * <p>
- * The main reason for the high speed of this RTree implementation is the
+ * The main reason for the high speed of this implementation is the
  * avoidance of the creation of unnecessary objects, mainly achieved by using
  * primitive collections.
  * </p>
  */
-public class RTree implements Serializable
+public class RTree extends RTreeBase implements Serializable
 {
-	private static final long serialVersionUID = 5946232781609920309L;
+	private static final long serialVersionUID = 8440068248349540350L;
 	
 	private static final Logger log    = Logger.getLogger(RTree.class.getName());
 	private static final Logger logDel = Logger.getLogger(RTree.class.getName() + "-delete");
@@ -65,29 +65,36 @@ public class RTree implements Serializable
 	private final boolean isDebug    = log.isLoggable(Level.FINE);
 	private final boolean isDebugDel = logDel.isLoggable(Level.FINE);
 
-	// parameters of the tree
-	final int maxNodeEntries;
-	final int minNodeEntries;
+	/** Parameters of the tree */
+	final int maxNodeEntries, minNodeEntries;
 
-	// map of nodeId -> node object
-	// TODO eliminate this map - it should not be needed. Nodes can be found by traversing the tree.
-	private final ArrayList<Node> nodeMap = new ArrayList<>();
+	/**
+	 * Map of nodeId -> node object.
+	 * TODO: eliminate this map - it should not be needed. Nodes can be found by traversing the tree.
+	 * Due to {@link #deletedNodeIds} this can be a list.
+	 */
+	private ArrayList<Node> nodeMap = new ArrayList<>();
 
-	// Deleted node objects are retained in the nodeMap, so that they can be reused.
-	// Store the IDs of nodes which can be reused.
+	/**
+	 * Stores the IDs of nodes which were deleted and can be reused.
+	 * <p>
+	 * Deleted node objects were planned to be retained in the nodeMap, so that they could be reused.
+	 * Actually nodes are never reused, this array allows to use a list as node-map, though.
+	 */
 	private final IntArray deletedNodeIds = new IntArray();
 	
-	// used to mark the status of entries during a node split
+	/** Cached instance used to mark the status of entries during a node split. */
 	private final byte[] entryStatus;
-	private final byte[] initialEntryStatus;
 
-	// stacks used to store nodeId and entry index of each node
-	// from the root down to the leaf. Enables fast lookup
-	// of nodes when a split is propagated up the tree.
-	private final IntArray parents = new IntArray();
-	private final IntArray parentsEntry = new IntArray();
+	/**
+	 * Stacks used to store nodeId and entry index of each node
+	 * from the root down to the leaf. Enables fast lookup
+	 * of nodes when a split is propagated up the tree.
+	 */
+	private final IntArray parents = new IntArray(), parentsEntry = new IntArray();
 
-	private int treeHeight = 1; // leaves are always level 1
+	/** leaves are always level 1 */
+	private int treeHeight = 1;
 	private int rootNodeId = 0;
 	private int size = 0;
 
@@ -137,13 +144,54 @@ public class RTree implements Serializable
 		maxNodeEntries = max;
 		minNodeEntries = min;
 		entryStatus = new byte[maxNodeEntries];
-		initialEntryStatus = new byte[maxNodeEntries];
-		Arrays.fill(initialEntryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
 		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
 
 		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
 
+	
+	public void clear()
+	{
+		nodeMap.clear();
+		deletedNodeIds.clear();
+		parents.clear();
+		parentsEntry.clear();
+		treeHeight = 1;
+		rootNodeId = 0;
+		size = 0;
+		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
+	}
+	
+	
+	/**
+	 * <b>Transfers</b> all nodes of this instance into a {@link SpatialIndex}.
+	 * This tree will be empty afterwards.
+	 * <p>
+	 * An index is a condensed read-only version that can be faster and uses
+	 * less memory, especially if this tree has many deleted nodes.
+	 */
+	public SpatialIndex toIndex()
+	{
+		if ( size==0 ) return new SpatialIndex(new ArrayList<>(), 0, 0);
+		
+		int deleted = deletedNodeIds.size();
+		while ( !deletedNodeIds.isEmpty() ) {
+			int idx = deletedNodeIds.pop();
+			if ( idx<nodeMap.size() ) nodeMap.set(idx, null);
+		}
+
+		SpatialIndex result; 
+		if ( size<128 || deleted==0 || deleted<size / 10 ) {
+			result = new SpatialIndex(nodeMap, rootNodeId, size);
+		} else {
+			// TODO: compact nodemap and rewrite indexes in nodes.
+			result = new SpatialIndex(nodeMap, rootNodeId, size);
+		}
+		nodeMap = new ArrayList<>();
+		clear();
+		return result;
+	}
+	
 	
 	/**
 	 * Returns the number of entries in the spatial index
@@ -154,44 +202,69 @@ public class RTree implements Serializable
 	}
 
 	
-	public void clear()
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void nearest(Spot p, AreaCallback v, float furthestDistance)
 	{
-		nodeMap.clear();
-		deletedNodeIds.clear();
-		Arrays.fill(entryStatus, (byte)0);
-		Arrays.fill(initialEntryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
-		parents.clear();
-		parentsEntry.clear();
-		treeHeight = 1;
-		rootNodeId = 0;
-		size = 0;
-		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
+		super.nearest(p, v, furthestDistance);
 	}
 
 	
 	/**
-	 * Returns the bounds of all the entries in the spatial index,
-	 * or null if there are no entries.
+	 * {@inheritDoc}
 	 */
-	public Area getBounds()
+	@Override
+	public void nearestNUnsorted(Spot p, AreaCallback v, int count, float furthestDistance)
 	{
-		Area bounds = null;
-
-		Node n = getNode(getRootNodeId());
-		if ( n != null && n.entryCount > 0 ) {
-			bounds = new Area();
-			bounds.minX = n.mbrMinX;
-			bounds.minY = n.mbrMinY;
-			bounds.maxX = n.mbrMaxX;
-			bounds.maxY = n.mbrMaxY;
-		}
-		return bounds;
+		super.nearestNUnsorted(p, v, count, furthestDistance);
 	}
 
 
-	
-	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void nearestN(Spot p, AreaCallback v, int count, float furthestDistance)
+	{
+		super.nearestN(p, v, count, furthestDistance);
+	}
 
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void intersects(Area r, AreaCallback v)
+	{
+		super.intersects(r, v);
+	}
+
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void contains(Area r, AreaCallback v)
+	{
+		super.contains(r, v);
+	}
+
+	
+	public void add(SpatialIndex tree)
+	{
+		for ( Node n : tree.nodes ) {
+			if ( n==null || !n.isLeaf() ) continue;
+			for ( int i = 0; i < n.entryCount; i++ ) {
+				add(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], n.ids[i], 1);
+				size++;
+				if ( INTERNAL_CONSISTENCY_CHECKING ) checkConsistency();
+			}
+		}
+	}
+
+	
 	/**
 	 * Adds a new rectangle to the spatial index
 	 *
@@ -205,51 +278,8 @@ public class RTree implements Serializable
 		if ( isDebug ) log.fine("Adding rectangle " + r + ", id " + id);
 
 		add(r.minX, r.minY, r.maxX, r.maxY, id, 1);
-
 		size++;
-
-		if ( INTERNAL_CONSISTENCY_CHECKING ) {
-			checkConsistency();
-		}
-	}
-
-
-	/**
-	 * Adds a new entry at a specified level in the tree
-	 */
-	private void add(float minX, float minY, float maxX, float maxY, int id, int level)
-	{
-		// I1 [Find position for new record] Invoke ChooseLeaf to select a
-		// leaf node L in which to place r
-		Node n = chooseNode(minX, minY, maxX, maxY, level);
-		Node newLeaf = null;
-
-		// I2 [Add record to leaf node] If L has room for another entry,
-		// install E. Otherwise invoke SplitNode to obtain L and LL containing
-		// E and all the old entries of L
-		if ( n.entryCount < maxNodeEntries ) {
-			n.addEntry(minX, minY, maxX, maxY, id);
-		} else {
-			newLeaf = splitNode(n, minX, minY, maxX, maxY, id);
-		}
-
-		// I3 [Propagate changes upwards] Invoke AdjustTree on L, also passing LL
-		// if a split was performed
-		Node newNode = adjustTree(n, newLeaf);
-
-		// I4 [Grow tree taller] If node split propagation caused the root to
-		// split, create a new root whose children are the two resulting nodes.
-		if ( newNode != null ) {
-			int oldRootNodeId = rootNodeId;
-			Node oldRoot = getNode(oldRootNodeId);
-
-			rootNodeId = getNextNodeId();
-			treeHeight++;
-			Node root = new Node(rootNodeId, treeHeight, maxNodeEntries);
-			root.addEntry(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, newNode.nodeId);
-			root.addEntry(oldRoot.mbrMinX, oldRoot.mbrMinY, oldRoot.mbrMaxX, oldRoot.mbrMaxY, oldRoot.nodeId);
-			putNode(rootNodeId, root);
-		}
+		if ( INTERNAL_CONSISTENCY_CHECKING ) checkConsistency();
 	}
 
 
@@ -277,10 +307,10 @@ public class RTree implements Serializable
 		// to determine if it contains r. For each entry found, invoke
 		// findLeaf on the node pointed to by the entry, until r is found or
 		// all entries have been checked.
-		parents.clear();
+		parents.reset();
 		parents.push(rootNodeId);
 
-		parentsEntry.clear();
+		parentsEntry.reset();
 		parentsEntry.push(-1);
 		Node n = null;
 		int foundIndex = -1; // index of entry to be deleted in leaf
@@ -323,8 +353,7 @@ public class RTree implements Serializable
 		// entry is not a leaf node, delete the root (it's entry becomes the new root)
 		Node root = getNode(rootNodeId);
 		while ( root.entryCount == 1 && treeHeight > 1 ) {
-			// TODO: set nodeMap(rootNodeId) to null
-			deletedNodeIds.push(rootNodeId);
+			removeNode(rootNodeId);
 			root.entryCount = 0;
 			rootNodeId = root.ids[0];
 			treeHeight--;
@@ -348,308 +377,50 @@ public class RTree implements Serializable
 		return (foundIndex != -1);
 	}
 
-
-	/**
-	 * Finds the nearest rectangles to the passed rectangle and calls
-	 * v.execute(id) for each one.
-	 *
-	 * If multiple rectangles are equally near, they will
-	 * all be returned.
-	 *
-	 * @param p The point for which this method finds the
-	 *        nearest neighbours.
-	 *
-	 * @param v The IntProcedure whose execute() method is is called
-	 *        for each nearest neighbour.
-	 *
-	 * @param furthestDistance The furthest distance away from the rectangle
-	 *        to search. Rectangles further than this will not be found.
-	 *
-	 *        This should be as small as possible to minimise
-	 *        the search time.
-	 *
-	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
-	 *        no matter how far away, although this will slow down the algorithm.
-	 */
-	public void nearest(Spot p, AreaCallback v, float furthestDistance)
-	{
-		Node rootNode = getNode(rootNodeId);
-
-		float furthestDistanceSq = furthestDistance * furthestDistance;
-		IntArray nearestIds = new IntArray();
-		nearest(p, rootNode, furthestDistanceSq, nearestIds);
-		nearestIds.forEach(v);
-	}
-
-
-	private void createNearestNDistanceQueue(Spot p, int count, PriorityQueue distanceQueue, float furthestDistance)
-	{
-		// return immediately if given an invalid "count" parameter
-		if ( count <= 0 ) {
-			return;
-		}
-
-		IntArray parents = new IntArray();
-		parents.push(rootNodeId);
-
-		IntArray parentsEntry = new IntArray();
-		parentsEntry.push(-1);
-
-		IntArray savedValues = new IntArray();
-		float savedPriority = 0;
-
-		// TODO: possible shortcut here - could test for intersection with the
-		// MBR of the root node. If no intersection, return immediately.
-
-		float furthestDistanceSq = furthestDistance * furthestDistance;
-
-		while ( parents.size() > 0 ) {
-			Node n = getNode(parents.peek());
-			int startIndex = parentsEntry.peek() + 1;
-
-			if ( !n.isLeaf() ) {
-				// go through every entry in the index node to check
-				// if it could contain an entry closer than the farthest entry
-				// currently stored.
-				boolean near = false;
-				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y) <= furthestDistanceSq ) {
-						parents.push(n.ids[i]);
-						parentsEntry.pop();
-						parentsEntry.push(i); // this becomes the start index when the child has been searched
-						parentsEntry.push(-1);
-						near = true;
-						break; // ie go to next iteration of while()
-					}
-				}
-				if ( near ) {
-					continue;
-				}
-			} else {
-				// go through every entry in the leaf to check if
-				// it is currently one of the nearest N entries.
-				for ( int i = 0; i < n.entryCount; i++ ) {
-					float entryDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
-					int entryId = n.ids[i];
-
-					if ( entryDistanceSq <= furthestDistanceSq ) {
-						distanceQueue.insert(entryId, entryDistanceSq);
-
-						while ( distanceQueue.size() > count ) {
-							// normal case - we can simply remove the lowest priority (highest distance) entry
-							int value = distanceQueue.getValue();
-							float distanceSq = distanceQueue.getPriority();
-							distanceQueue.pop();
-
-							// rare case - multiple items of the same priority (distance)
-							if ( distanceSq == distanceQueue.getPriority() ) {
-								savedValues.add(value);
-								savedPriority = distanceSq;
-							} else {
-								savedValues.reset();
-							}
-						}
-
-						// if the saved values have the same distance as the
-						// next one in the tree, add them back in.
-						if ( savedValues.size() > 0 && savedPriority == distanceQueue.getPriority() ) {
-							for ( int svi = 0; svi < savedValues.size(); svi++ ) {
-								distanceQueue.insert(savedValues.get(svi), savedPriority);
-							}
-							savedValues.reset();
-						}
-
-						// narrow the search, if we have already found N items
-						if ( distanceQueue.getPriority() < furthestDistanceSq && distanceQueue.size() >= count ) {
-							furthestDistanceSq = distanceQueue.getPriority();
-						}
-					}
-				}
-			}
-			parents.pop();
-			parentsEntry.pop();
-		}
-	}
-
-
-	/**
-	 * Same as nearestN, except the found rectangles are not returned
-	 * in sorted order. This will be faster, if sorting is not required
-	 */
-	public void nearestNUnsorted(Spot p, AreaCallback v, int count, float furthestDistance)
-	{
-		// This implementation is designed to give good performance
-		// where
-		// o N is high (100+)
-		// o The results do not need to be sorted by distance.
-		//
-		// Uses a priority queue as the underlying data structure.
-		//
-		// Note that more than N items will be returned if items N and N+x have the
-		// same priority.
-		PriorityQueue distanceQueue = new PriorityQueue(PriorityQueue.SORT_ORDER_DESCENDING);
-		createNearestNDistanceQueue(p, count, distanceQueue, furthestDistance);
-
-		while ( distanceQueue.size() > 0 ) {
-			v.processArea(distanceQueue.getValue());
-			distanceQueue.pop();
-		}
-	}
-
-
-	/**
-	 * Finds the N nearest rectangles to the passed rectangle, and calls
-	 * execute(id, distance) on each one, in order of increasing distance.
-	 *
-	 * Note that fewer than N rectangles may be found if fewer entries
-	 * exist within the specified furthest distance, or more if rectangles
-	 * N and N+1 have equal distances.
-	 *
-	 * @param p The point for which this method finds the
-	 *        nearest neighbours.
-	 *
-	 * @param v The IntfloatProcedure whose execute() method is is called
-	 *        for each nearest neighbour.
-	 *
-	 * @param count The desired number of rectangles to find (but note that
-	 *        fewer or more may be returned)
-	 *
-	 * @param furthestDistance The furthest distance away from the rectangle
-	 *        to search. Rectangles further than this will not be found.
-	 *
-	 *        This should be as small as possible to minimise
-	 *        the search time.
-	 *
-	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
-	 *        no matter how far away, although this will slow down the algorithm.
-	 */
-	public void nearestN(Spot p, AreaCallback v, int count, float furthestDistance)
-	{
-		PriorityQueue distanceQueue = new PriorityQueue(PriorityQueue.SORT_ORDER_DESCENDING);
-		createNearestNDistanceQueue(p, count, distanceQueue, furthestDistance);
-		distanceQueue.setSortOrder(PriorityQueue.SORT_ORDER_ASCENDING);
-
-		while ( distanceQueue.size() > 0 ) {
-			v.processArea(distanceQueue.getValue());
-			distanceQueue.pop();
-		}
-	}
-
-
-	/**
-	 * Finds all rectangles that intersect the passed rectangle.
-	 *
-	 * @param r The rectangle for which this method finds
-	 *        intersecting rectangles.
-	 *
-	 * @param v The IntProcedure whose execute() method is is called
-	 *        for each intersecting rectangle.
-	 */
-	public void intersects(Area r, AreaCallback v)
-	{
-		Node rootNode = getNode(rootNodeId);
-		intersects(r, v, rootNode);
-	}
-
-
-	/**
-	 * Finds all rectangles contained by the passed rectangle.
-	 *
-	 * @param r The rectangle for which this method finds
-	 *        contained rectangles.
-	 *
-	 * @param v The procedure whose visit() method is is called
-	 *        for each contained rectangle.
-	 */
-	public void contains(Area r, AreaCallback v)
-	{
-		// find all rectangles in the tree that are contained by the passed rectangle
-		// written to be non-recursive (should model other searches on this?)
-		IntArray parents = new IntArray();
-		parents.push(rootNodeId);
-
-		IntArray parentsEntry = new IntArray();
-		parentsEntry.push(-1);
-
-		// TODO: possible shortcut here - could test for intersection with the
-		// MBR of the root node. If no intersection, return immediately.
-
-		while ( parents.size() > 0 ) {
-			Node n = getNode(parents.peek());
-			int startIndex = parentsEntry.peek() + 1;
-
-			if ( !n.isLeaf() ) {
-				// go through every entry in the index node to check
-				// if it intersects the passed rectangle. If so, it
-				// could contain entries that are contained.
-				boolean intersects = false;
-				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
-						parents.push(n.ids[i]);
-						parentsEntry.pop();
-						parentsEntry.push(i); // this becomes the start index when the child has been searched
-						parentsEntry.push(-1);
-						intersects = true;
-						break; // ie go to next iteration of while()
-					}
-				}
-				if ( intersects ) {
-					continue;
-				}
-			} else {
-				// go through every entry in the leaf to check if
-				// it is contained by the passed rectangle
-				for ( int i = 0; i < n.entryCount; i++ ) {
-					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
-						if ( !v.processArea(n.ids[i]) ) {
-							return;
-						}
-					}
-				}
-			}
-			parents.pop();
-			parentsEntry.pop();
-		}
-	}
-
-
-	/**
-	 * Get the next available node ID. Reuse deleted node IDs if
-	 * possible
-	 */
-	private int getNextNodeId()
-	{
-		return deletedNodeIds.isEmpty() ? nodeMap.size() : deletedNodeIds.pop();
-	}
-
-	
-	private void putNode(int id, Node node)
-	{
-		if ( id==nodeMap.size() ) nodeMap.add(node); else nodeMap.set(id, node);
-	}
-
 	
 	/**
-	 * Get a node object, given the ID of the node.
+	 * Adds a new entry at a specified level in the tree
 	 */
-	private Node getNode(int id)
+	private void add(float minX, float minY, float maxX, float maxY, int id, int level)
 	{
-		return id<0 || id>=nodeMap.size() ? null : nodeMap.get(id);
-	}
+		// I1 [Find position for new record] Invoke ChooseLeaf to select a
+		// leaf node L in which to place r
+		Node n = chooseNode(minX, minY, maxX, maxY, level);
+		Node newLeaf = null;
 
+		// I2 [Add record to leaf node] If L has room for another entry,
+		// install E. Otherwise invoke SplitNode to obtain L and LL containing
+		// E and all the old entries of L
+		if ( n.entryCount < maxNodeEntries ) {
+			n.addEntry(minX, minY, maxX, maxY, id);
+		} else {
+			newLeaf = splitNode(n, minX, minY, maxX, maxY, id);
+		}
 
-	/**
-	 * Get the root node ID
-	 */
-	private int getRootNodeId()
-	{
-		return rootNodeId;
+		// I3 [Propagate changes upwards] Invoke AdjustTree on L, also passing LL
+		// if a split was performed
+		Node newNode = adjustTree(n, newLeaf);
+
+		// I4 [Grow tree taller] If node split propagation caused the root to
+		// split, create a new root whose children are the two resulting nodes.
+		if ( newNode != null ) {
+			Node oldRoot = getNode(rootNodeId);
+			rootNodeId = getNextNodeId();
+			treeHeight++;
+			Node root = new Node(rootNodeId, treeHeight, maxNodeEntries);
+			root.addEntry(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, newNode.nodeId);
+			root.addEntry(oldRoot.mbrMinX, oldRoot.mbrMinY, oldRoot.mbrMaxX, oldRoot.mbrMaxY, oldRoot.nodeId);
+			putNode(rootNodeId, root);
+		}
 	}
 
 
 	/**
 	 * Split a node. Algorithm is taken pretty much verbatim from
 	 * Guttman's original paper.
+	 * <p>
+	 * 
+	 * Initializes {@link #entryStatus}, which is used by "child methods".
 	 *
 	 * @return new node object.
 	 */
@@ -670,7 +441,7 @@ public class RTree implements Serializable
 			initialArea = (unionMaxX - unionMinX) * (unionMaxY - unionMinY);
 		}
 
-		System.arraycopy(initialEntryStatus, 0, entryStatus, 0, maxNodeEntries);
+		Arrays.fill(entryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
 
 		Node newNode = null;
 		newNode = new Node(getNextNodeId(), n.level, maxNodeEntries);
@@ -746,7 +517,13 @@ public class RTree implements Serializable
 
 	/**
 	 * Pick the seeds used to split a node.
-	 * Select two entries to be the first elements of the groups
+	 * <p>
+	 * 
+	 * Select two entries to be the first elements of the groups.
+	 * <p>
+	 * 
+	 * Used by {@link #splitNode(Node, float, float, float, float, int)} and
+	 * uses {@link #entryStatus}.
 	 */
 	private void pickSeeds(Node n, float newRectMinX, float newRectMinY, float newRectMaxX, float newRectMaxY, int newId, Node newNode)
 	{
@@ -912,10 +689,15 @@ public class RTree implements Serializable
 
 	/**
 	 * Pick the next entry to be assigned to a group during a node split.
+	 * <p>
 	 *
-	 * [Determine cost of putting each entry in each group] For each
-	 * entry not yet in a group, calculate the area increase required
-	 * in the covering rectangles of each group
+	 * [Determine cost of putting each entry in each group]
+	 * For each entry not yet in a group, calculate the area increase required
+	 * in the covering rectangles of each group.
+	 * <p>
+	 * 
+	 * Used by {@link #splitNode(Node, float, float, float, float, int)} and
+	 * uses {@link #entryStatus}.
 	 */
 	private int pickNext(final Node n, final Node newNode)
 	{
@@ -990,72 +772,11 @@ public class RTree implements Serializable
 
 
 	/**
-	 * Recursively searches the tree for the nearest entry. Other queries
-	 * call execute() on an IntProcedure when a matching entry is found;
-	 * however nearest() must store the entry Ids as it searches the tree,
-	 * in case a nearer entry is found.
-	 * Uses the member variable nearestIds to store the nearest
-	 * entry IDs (it is an array, rather than a single value, in case
-	 * multiple entries are equally near)
-	 */
-	private float nearest(Spot p, Node n, float furthestDistanceSq, IntArray nearestIds)
-	{
-		for ( int i = 0; i < n.entryCount; i++ ) {
-			float tempDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
-			if ( n.isLeaf() ) { // for leaves, the distance is an actual nearest distance
-				if ( tempDistanceSq < furthestDistanceSq ) {
-					furthestDistanceSq = tempDistanceSq;
-					nearestIds.reset();
-				}
-				if ( tempDistanceSq <= furthestDistanceSq ) {
-					nearestIds.add(n.ids[i]);
-				}
-			} else { // for index nodes, only go into them if they potentially could have
-				// a rectangle nearer than actualNearest
-				if ( tempDistanceSq <= furthestDistanceSq ) {
-					// search the child node
-					furthestDistanceSq = nearest(p, getNode(n.ids[i]), furthestDistanceSq, nearestIds);
-				}
-			}
-		}
-		return furthestDistanceSq;
-	}
-
-
-	/**
-	 * Recursively searches the tree for all intersecting entries.
-	 * Immediately calls execute() on the passed IntProcedure when
-	 * a matching entry is found.
-	 *
-	 * TODO rewrite this to be non-recursive? Make sure it
-	 * doesn't slow it down.
-	 */
-	private boolean intersects(Area r, AreaCallback v, Node n)
-	{
-		for ( int i = 0; i < n.entryCount; i++ ) {
-			if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
-				if ( n.isLeaf() ) {
-					if ( !v.processArea(n.ids[i]) ) {
-						return false;
-					}
-				} else {
-					Node childNode = getNode(n.ids[i]);
-					if ( !intersects(r, v, childNode) ) {
-						return false;
-					}
-				}
-			}
-		}
-		return true;
-	}
-
-
-	/**
-	 * Used by delete(). Ensures that all nodes from the passed node
-	 * up to the root have the minimum number of entries.
-	 *
-	 * Note that the parent and parentEntry stacks are expected to
-	 * contain the nodeIds of all parents up to the root.
+	 * Ensures that all nodes from the passed node up to the root have the minimum number of entries.
+	 * <p>
+	 * 
+	 * Used by {@link #delete(Area, int)}, uses {@link #parents} and {@link #parentsEntry},
+	 * both stacks are expected to contain the nodeIds of all parents up to the root.
 	 */
 	private void condenseTree(Node l)
 	{
@@ -1110,20 +831,24 @@ public class RTree implements Serializable
 				e.ids[j] = -1;
 			}
 			e.entryCount = 0;
-			deletedNodeIds.push(e.nodeId);
+			removeNode(e.nodeId);
 		}
 	}
 
 
 	/**
-	 * Used by add(). Chooses a leaf to add the rectangle to.
+	 * Chooses a leaf to add the rectangle to.
+	 * <p>
+	 * 
+	 * Used by {@link #add(float, float, float, float, int, int)},
+	 * initializes {@link #parents} and {@link #parentsEntry}.
 	 */
 	private Node chooseNode(final float minX, final float minY, final float maxX, final float maxY, int level)
 	{
 		// CL1 [Initialize] Set N to be the root node
 		Node n = getNode(rootNodeId);
-		parents.clear();
-		parentsEntry.clear();
+		parents.reset();
+		parentsEntry.reset();
 
 		// CL2 [Leaf check] If N is a leaf, return N
 		while ( true ) {
@@ -1169,6 +894,9 @@ public class RTree implements Serializable
 	/**
 	 * Ascend from a leaf node L to the root, adjusting covering rectangles and
 	 * propagating node splits as necessary.
+	 * <p>
+	 * 
+	 * Used by {@link #add(float, float, float, float, int, int)}, uses {@link #parents} and {@link #parentsEntry}.
 	 */
 	private Node adjustTree(Node n, Node nn)
 	{
@@ -1227,6 +955,24 @@ public class RTree implements Serializable
 	}
 
 
+	/**
+	 * Given a node object, calculate the node MBR from it's entries.
+	 * Used in consistency checking
+	 */
+	private Area calculateMBR(Node n)
+	{
+		Area mbr = new Area();
+
+		for ( int i = 0; i < n.entryCount; i++ ) {
+			if ( n.entriesMinX[i] < mbr.minX ) mbr.minX = n.entriesMinX[i];
+			if ( n.entriesMinY[i] < mbr.minY ) mbr.minY = n.entriesMinY[i];
+			if ( n.entriesMaxX[i] > mbr.maxX ) mbr.maxX = n.entriesMaxX[i];
+			if ( n.entriesMaxY[i] > mbr.maxY ) mbr.maxY = n.entriesMaxY[i];
+		}
+		return mbr;
+	}
+	
+	
 	/**
 	 * Check the consistency of the tree.
 	 *
@@ -1304,21 +1050,40 @@ public class RTree implements Serializable
 		return true;
 	}
 
-
-	/**
-	 * Given a node object, calculate the node MBR from it's entries.
-	 * Used in consistency checking
-	 */
-	private Area calculateMBR(Node n)
+	
+	@Override
+	protected int getRoodNodeId()
 	{
-		Area mbr = new Area();
-
-		for ( int i = 0; i < n.entryCount; i++ ) {
-			if ( n.entriesMinX[i] < mbr.minX ) mbr.minX = n.entriesMinX[i];
-			if ( n.entriesMinY[i] < mbr.minY ) mbr.minY = n.entriesMinY[i];
-			if ( n.entriesMaxX[i] > mbr.maxX ) mbr.maxX = n.entriesMaxX[i];
-			if ( n.entriesMaxY[i] > mbr.maxY ) mbr.maxY = n.entriesMaxY[i];
-		}
-		return mbr;
+		return rootNodeId;
 	}
+	
+	
+	@Override
+	protected Node getNode(int id)
+	{
+		return id<0 || id>=nodeMap.size() ? null : nodeMap.get(id);
+	}
+
+	
+	/**
+	 * Get the next available node ID. Reuse deleted node IDs if possible.
+	 */
+	private int getNextNodeId()
+	{
+		return deletedNodeIds.isEmpty() ? nodeMap.size() : deletedNodeIds.pop();
+	}
+
+
+	private void putNode(int id, Node node)
+	{
+		if ( id==nodeMap.size() ) nodeMap.add(node); else nodeMap.set(id, node);
+	}
+
+	
+	private void removeNode(int id)
+	{
+		deletedNodeIds.push(id);
+		//if ( id!=nodeMap.size() ) nodeMap.set(id, null);
+	}
+	
 }
