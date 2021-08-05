@@ -60,13 +60,13 @@ public class RTree implements Serializable
 	// parameters of the tree
 	private final static int DEFAULT_MAX_NODE_ENTRIES = 50;
 	private final static int DEFAULT_MIN_NODE_ENTRIES = 20;
-	int maxNodeEntries;
-	int minNodeEntries;
+	final int maxNodeEntries;
+	final int minNodeEntries;
 
 	// map of nodeId -> node object
 	// TODO eliminate this map - it should not be needed. Nodes
 	// can be found by traversing the tree.
-	private ArrayList<Node> nodeMap = new ArrayList<>();
+	private final ArrayList<Node> nodeMap = new ArrayList<>();
 
 	// internal consistency checking - set to true if debugging tree corruption
 	private final static boolean INTERNAL_CONSISTENCY_CHECKING = false;
@@ -80,8 +80,8 @@ public class RTree implements Serializable
 	// stacks used to store nodeId and entry index of each node
 	// from the root down to the leaf. Enables fast lookup
 	// of nodes when a split is propagated up the tree.
-	private IntArray parents = new IntArray();
-	private IntArray parentsEntry = new IntArray();
+	private final IntArray parents = new IntArray();
+	private final IntArray parentsEntry = new IntArray();
 
 	// initialisation
 	private int treeHeight = 1; // leaves are always level 1
@@ -91,7 +91,7 @@ public class RTree implements Serializable
 	// Deleted node objects are retained in the nodeMap,
 	// so that they can be reused. Store the IDs of nodes
 	// which can be reused.
-	private IntArray deletedNodeIds = new IntArray();
+	private final IntArray deletedNodeIds = new IntArray();
 
 	
 	/**
@@ -129,29 +129,29 @@ public class RTree implements Serializable
 	 */
 	public RTree(Properties props)
 	{
-		if ( props == null ) {
-			// use sensible defaults if null is passed in.
-			maxNodeEntries = DEFAULT_MAX_NODE_ENTRIES;
-			minNodeEntries = DEFAULT_MIN_NODE_ENTRIES;
-		} else {
-			maxNodeEntries = Integer.parseInt(props.getProperty("MaxNodeEntries", "0"));
-			minNodeEntries = Integer.parseInt(props.getProperty("MinNodeEntries", "0"));
+		int max = DEFAULT_MAX_NODE_ENTRIES;
+		int min = DEFAULT_MIN_NODE_ENTRIES;
+		if ( props != null ) {
+			max = Integer.parseInt(props.getProperty("MaxNodeEntries", "0"));
+			min = Integer.parseInt(props.getProperty("MinNodeEntries", "0"));
 
 			// Obviously a node with less than 2 entries cannot be split.
 			// The node splitting algorithm will work with only 2 entries
 			// per node, but will be inefficient.
-			if ( maxNodeEntries < 2 ) {
-				log.warning("Invalid MaxNodeEntries = " + maxNodeEntries + " Resetting to default value of " + DEFAULT_MAX_NODE_ENTRIES);
-				maxNodeEntries = DEFAULT_MAX_NODE_ENTRIES;
+			if ( max < 2 ) {
+				log.warning("Invalid MaxNodeEntries = " + max + " Resetting to default value of " + DEFAULT_MAX_NODE_ENTRIES);
+				max = DEFAULT_MAX_NODE_ENTRIES;
 			}
 
 			// The MinNodeEntries must be less than or equal to (int) (MaxNodeEntries / 2)
-			if ( minNodeEntries < 1 || minNodeEntries > maxNodeEntries / 2 ) {
+			if ( min < 1 || min > max / 2 ) {
 				log.warning("MinNodeEntries must be between 1 and MaxNodeEntries / 2");
-				minNodeEntries = maxNodeEntries / 2;
+				min = max / 2;
 			}
 		}
 
+		maxNodeEntries = max;
+		minNodeEntries = min;
 		entryStatus = new byte[maxNodeEntries];
 		initialEntryStatus = new byte[maxNodeEntries];
 		Arrays.fill(initialEntryStatus, (byte)ENTRY_STATUS_UNASSIGNED);
