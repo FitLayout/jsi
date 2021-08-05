@@ -21,8 +21,6 @@ package net.sf.jsi;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.sf.jsi.RTree.AreaCallback;
-
 /**
  * ListDecorator
  */

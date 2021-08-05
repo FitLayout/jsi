@@ -22,8 +22,6 @@ import java.io.ObjectInput;
 import java.io.ObjectOutput;
 import java.util.Arrays;
 
-import net.sf.jsi.RTree.AreaCallback;
-
 /**
  * 
  * @author <a href="mailto:gunnar.brand@interface-projects.de">Gunnar Brand</a>

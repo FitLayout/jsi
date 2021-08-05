@@ -92,21 +92,6 @@ public class RTree implements Serializable
 	private int size = 0;
 
 
-	
-	/**
-	 * Used by various methods to "return" nodes back to the caller.
-	 */
-	@FunctionalInterface
-	public interface AreaCallback
-	{
-		/**
-		 * @return {@code true} if further areas should be processed, {@code false} otherwise.
-		 */
-		boolean processArea(int id);
-	}
-
-	
-	
 	public RTree()
 	{
 		this(null);

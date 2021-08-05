@@ -22,7 +22,6 @@ import java.util.Properties;
 import java.util.Random;
 
 import junit.framework.TestCase;
-import net.sf.jsi.RTree.AreaCallback;
 
 public class DeleteAllEntriesTest extends TestCase {
 

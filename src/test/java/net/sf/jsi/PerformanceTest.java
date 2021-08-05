@@ -29,8 +29,6 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 
-import net.sf.jsi.RTree.AreaCallback;
-
 /**
  * PerformanceTest
  *  
