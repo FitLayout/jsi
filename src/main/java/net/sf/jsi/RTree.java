@@ -323,7 +323,9 @@ public class RTree extends RTreeBase implements Serializable
 				if ( isDebugDel ) logDel.fine("searching node " + n.nodeId + ", from index " + startIndex);
 				boolean contains = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Area.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], r.minX, r.minY, r.maxX, r.maxY) ) {
+					if ( Area.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i],
+						r.minX, r.minY, r.maxX, r.maxY) )
+					{
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
@@ -576,8 +578,11 @@ public class RTree extends RTreeBase implements Serializable
 			}
 
 			if ( isDebug ) {
-				log.fine("Entry " + i + ", dimension X: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
-					+ tempLowestHigh + " (index " + tempLowestHighIndex + ", NormalizedSeparation = " + normalizedSeparation);
+				log.fine("Entry " + i + ", dimension X: HighestLow = " + tempHighestLow
+					+ " (index " + tempHighestLowIndex + ")"
+					+ ", LowestHigh = " + tempLowestHigh
+					+ " (index " + tempLowestHighIndex
+					+ ", NormalizedSeparation = " + normalizedSeparation);
 			}
 
 			// PS3 [Select the most extreme pair] Choose the pair with the greatest
@@ -641,8 +646,8 @@ public class RTree extends RTreeBase implements Serializable
 		// the lowestHighIndex is the largest X (but always a different rectangle)
 		if ( highestLowIndex == lowestHighIndex ) {
 			highestLowIndex = -1;
-			float tempMinY = newRectMinY;
 			lowestHighIndex = 0;
+			float tempMinY = newRectMinY;
 			float tempMaxX = n.entriesMaxX[0];
 
 			for ( int i = 1; i < n.entryCount; i++ ) {
@@ -660,8 +665,8 @@ public class RTree extends RTreeBase implements Serializable
 		if ( highestLowIndex == -1 ) {
 			newNode.addEntry(newRectMinX, newRectMinY, newRectMaxX, newRectMaxY, newId);
 		} else {
-			newNode.addEntry(n.entriesMinX[highestLowIndex], n.entriesMinY[highestLowIndex], n.entriesMaxX[highestLowIndex], n.entriesMaxY[highestLowIndex],
-				n.ids[highestLowIndex]);
+			newNode.addEntry(n.entriesMinX[highestLowIndex], n.entriesMinY[highestLowIndex],
+				n.entriesMaxX[highestLowIndex], n.entriesMaxY[highestLowIndex], n.ids[highestLowIndex]);
 			n.ids[highestLowIndex] = -1;
 
 			// move the new rectangle into the space vacated by the seed for the new node
@@ -707,9 +712,7 @@ public class RTree extends RTreeBase implements Serializable
 
 		maxDifference = Float.NEGATIVE_INFINITY;
 
-		if ( isDebug ) {
-			log.fine("pickNext()");
-		}
+		if ( isDebug ) log.fine("pickNext()");
 
 		final float rn = Area.area(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY);
 		final float rnn = Area.area(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY);
@@ -721,10 +724,10 @@ public class RTree extends RTreeBase implements Serializable
 					log.severe("Error: Node " + n.nodeId + ", entry " + i + " is null");
 				}
 
-				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY, rn, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i],
-					n.entriesMaxY[i]);
-				float newNodeIncrease = Area.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY, rnn, n.entriesMinX[i],
-					n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]);
+				float nIncrease = Area.enlargement(n.mbrMinX, n.mbrMinY, n.mbrMaxX, n.mbrMaxY,
+					rn, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]);
+				float newNodeIncrease = Area.enlargement(newNode.mbrMinX, newNode.mbrMinY, newNode.mbrMaxX, newNode.mbrMaxY,
+					rnn, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]);
 
 				float difference = Math.abs(nIncrease - newNodeIncrease);
 
@@ -733,15 +736,20 @@ public class RTree extends RTreeBase implements Serializable
 
 					if ( nIncrease < newNodeIncrease ) {
 						nextGroup = 0;
-					} else if ( newNodeIncrease < nIncrease ) {
+					}
+					else if ( newNodeIncrease < nIncrease ) {
 						nextGroup = 1;
-					} else if ( rn < rnn ) {
+					}
+					else if ( rn < rnn ) {
 						nextGroup = 0;
-					} else if ( rnn < rn ) {
+					}
+					else if ( rnn < rn ) {
 						nextGroup = 1;
-					} else if ( newNode.entryCount < maxNodeEntries / 2 ) {
+					}
+					else if ( newNode.entryCount < maxNodeEntries / 2 ) {
 						nextGroup = 0;
-					} else {
+					}
+					else {
 						nextGroup = 1;
 					}
 					maxDifference = difference;
@@ -803,7 +811,8 @@ public class RTree extends RTreeBase implements Serializable
 				// CT4 [Adjust covering rectangle] If N has not been eliminated,
 				// adjust EnI to tightly contain all entries in N
 				if ( n.mbrMinX != parent.entriesMinX[parentEntry] || n.mbrMinY != parent.entriesMinY[parentEntry]
-					|| n.mbrMaxX != parent.entriesMaxX[parentEntry] || n.mbrMaxY != parent.entriesMaxY[parentEntry] ) {
+					|| n.mbrMaxX != parent.entriesMaxX[parentEntry] || n.mbrMaxY != parent.entriesMaxY[parentEntry] )
+				{
 					float deletedMinX = parent.entriesMinX[parentEntry];
 					parent.entriesMinX[parentEntry] = n.mbrMinX;
 					float deletedMinY = parent.entriesMinY[parentEntry];
@@ -864,8 +873,8 @@ public class RTree extends RTreeBase implements Serializable
 			// whose rectangle FI needs least enlargement to include EI. Resolve
 			// ties by choosing the entry with the rectangle of smaller area.
 			float areaNIndex = Area.area(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0]);
-			float leastEnlargement = Area.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0], areaNIndex, minX, minY, maxX,
-				maxY);
+			float leastEnlargement = Area.enlargement(n.entriesMinX[0], n.entriesMinY[0], n.entriesMaxX[0], n.entriesMaxY[0],
+				areaNIndex, minX, minY, maxX, maxY);
 			int index = 0; // index of rectangle in subtree
 			for ( int i = 1; i < n.entryCount; i++ ) {
 				float tempMinX = n.entriesMinX[i];
@@ -913,12 +922,13 @@ public class RTree extends RTreeBase implements Serializable
 			int entry = parentsEntry.pop();
 
 			if ( parent.ids[entry] != n.nodeId ) {
-				log.severe("Error: entry " + entry + " in node " + parent.nodeId + " should point to node " + n.nodeId + "; actually points to node "
-					+ parent.ids[entry]);
+				log.severe("Error: entry " + entry + " in node " + parent.nodeId + " should point to node "
+					+ n.nodeId + "; actually points to node " + parent.ids[entry]);
 			}
 
-			if ( parent.entriesMinX[entry] != n.mbrMinX || parent.entriesMinY[entry] != n.mbrMinY || parent.entriesMaxX[entry] != n.mbrMaxX
-				|| parent.entriesMaxY[entry] != n.mbrMaxY ) {
+			if ( parent.entriesMinX[entry] != n.mbrMinX || parent.entriesMinY[entry] != n.mbrMinY
+				|| parent.entriesMaxX[entry] != n.mbrMaxX || parent.entriesMaxY[entry] != n.mbrMaxY )
+			{
 
 				parent.entriesMinX[entry] = n.mbrMinX;
 				parent.entriesMinY[entry] = n.mbrMinY;
@@ -1042,7 +1052,9 @@ public class RTree extends RTreeBase implements Serializable
 			}
 
 			if ( n.level > 1 ) { // if not a leaf
-				if ( !checkConsistency(n.ids[i], n.level - 1, new Area(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) ) {
+				if ( !checkConsistency(n.ids[i], n.level - 1,
+					new Area(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) )
+				{
 					return false;
 				}
 			}

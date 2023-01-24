@@ -191,6 +191,7 @@ abstract class RTreeBase
 		// TODO: possible shortcut here - could test for intersection with the
 		// MBR of the root node. If no intersection, return immediately.
 
+		LOOP:
 		while ( parents.size() > 0 ) {
 			Node n = getNode(parents.peek());
 			int startIndex = parentsEntry.peek() + 1;
@@ -199,28 +200,25 @@ abstract class RTreeBase
 				// go through every entry in the index node to check
 				// if it intersects the passed rectangle. If so, it
 				// could contain entries that are contained.
-				boolean intersects = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
+					if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY,
+						n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) )
+					{
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
 						parentsEntry.push(-1);
-						intersects = true;
-						break; // ie go to next iteration of while()
-					}
+						continue LOOP;
 				}
-				if ( intersects ) {
-					continue;
 				}
 			} else {
 				// go through every entry in the leaf to check if
 				// it is contained by the passed rectangle
 				for ( int i = 0; i < n.entryCount; i++ ) {
-					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
-						if ( !v.processArea(n.ids[i]) ) {
-							return;
-						}
+					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i],
+						n.entriesMaxX[i], n.entriesMaxY[i]) )
+					{
+						if ( !v.processArea(n.ids[i]) ) return;
 					}
 				}
 			}
@@ -251,6 +249,7 @@ abstract class RTreeBase
 
 		float furthestDistanceSq = furthestDistance * furthestDistance;
 
+		LOOP:
 		while ( parents.size() > 0 ) {
 			Node n = getNode(parents.peek());
 			int startIndex = parentsEntry.peek() + 1;
@@ -259,19 +258,14 @@ abstract class RTreeBase
 				// go through every entry in the index node to check
 				// if it could contain an entry closer than the farthest entry
 				// currently stored.
-				boolean near = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
 					if ( Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y) <= furthestDistanceSq ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
 						parentsEntry.push(-1);
-						near = true;
-						break; // ie go to next iteration of while()
-					}
+						continue LOOP;
 				}
-				if ( near ) {
-					continue;
 				}
 			} else {
 				// go through every entry in the leaf to check if
@@ -365,14 +359,10 @@ abstract class RTreeBase
 		for ( int i = 0; i < n.entryCount; i++ ) {
 			if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 				if ( n.isLeaf() ) {
-					if ( !v.processArea(n.ids[i]) ) {
-						return false;
-					}
+					if ( !v.processArea(n.ids[i]) ) return false;
 				} else {
 					Node childNode = getNode(n.ids[i]);
-					if ( !intersects(r, v, childNode) ) {
-						return false;
-					}
+					if ( !intersects(r, v, childNode) ) return false;
 				}
 			}
 		}
