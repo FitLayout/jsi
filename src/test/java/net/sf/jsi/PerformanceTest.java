@@ -29,133 +29,211 @@ import java.util.logging.Logger;
 
 import org.junit.Test;
 
+
 /**
  * PerformanceTest
- *  
- * Generates results used for comparing the performance of the Java Spatial 
+ * Generates results used for comparing the performance of the Java Spatial
  * Index library against alternative implementations.
- *
  * The idea is for the raw data to be imported into a database, and results
  * extracted from that.
- *
  * This test requires 1024M memory (i.e. use -Xmx1024M)
  */
-public class PerformanceTest {
+public class PerformanceTest
+{
 
-  private static final Logger log = Logger.getLogger(PerformanceTest.class.getName());
-  private RTree tree;
+	private static final Logger log = Logger.getLogger(PerformanceTest.class.getName());
+	private RTree tree;
 
-  private float randomFloat(Random r, float min, float max) {
-    return (r.nextFloat() * (max - min)) + min;
-  }
 
-  protected Spot randomPoint(Random r) {
-    return new Spot(randomFloat(r, 0, 100), randomFloat(r, 0, 100));
-  }
+	private float randomFloat(Random r, float min, float max)
+	{
+		return (r.nextFloat() * (max - min)) + min;
+	}
 
-  private Area randomRectangle(Random r, float size) {
-    float x = randomFloat(r, 0, 100);
-    float y = randomFloat(r, 0, 100);
-    return new Area(x, y, x + randomFloat(r, 0, size), y + randomFloat(r, 0, size));
-  }
 
-  abstract class Operation {
-    private final int count[] = new int[1];
-    private String description;
-    public Random random;
+	protected Spot randomPoint(Random r)
+	{
+		return new Spot(randomFloat(r, 0, 100), randomFloat(r, 0, 100));
+	}
 
-    public Operation(String description, Random r) {
-      this.description = description;
-      this.random = r;
-    }
 
-    protected AreaCallback countProc = new AreaCallback() {
-      @Override public boolean processArea(int value) {
-        count[0]++;
-        return true;
-      }
-    };
+	private Area randomRectangle(Random r, float size)
+	{
+		float x = randomFloat(r, 0, 100);
+		float y = randomFloat(r, 0, 100);
+		return new Area(x, y, x + randomFloat(r, 0, size), y + randomFloat(r, 0, size));
+	}
 
-    public int callbackCount() {
-      return count[0];
-    }
 
-    public String getDescription() {
-      return description;
-    }
+	abstract class Operation
+	{
+		private final int count[] = new int[1];
+		private String description;
+		public Random random;
 
-    abstract void execute(RTree si, Random r);
-  }
 
-  private void benchmark(Operation o, int repetitions) {
-    long duration = 0;
-    long startTime = System.nanoTime();
-    for (int j = 0; j < repetitions; j++) o.execute(tree, o.random);
-    duration += (System.nanoTime() - startTime);
+		public Operation(String description, Random r)
+		{
+			this.description = description;
+			this.random = r;
+		}
 
-    log.info(o.getDescription() + ", " +
-            "avg callbacks = " + ((float) o.callbackCount() / repetitions) + ", " +
-            "avg time = " + (duration / repetitions) + " ns");
-  }
+		protected AreaCallback countProc = new AreaCallback() {
+			@Override
+			public boolean processArea(int value)
+			{
+				count[0]++;
+				return true;
+			}
+		};
 
-  /**
-   * First attempt at a benchmark
-   */
-  @Test
-  public void benchmark_1() {
-    Random rand  = new Random(0);
-    Properties p = new Properties();
-    p.setProperty("MinNodeEntries", "20");
-    p.setProperty("MaxNodeEntries", "50");
-    tree = new RTree(p);
 
-    final int rectangleCount = 1000000;
-    final Area[] rects = new Area[rectangleCount];
-    for (int i = 0; i < rectangleCount; i++) {
-      rects[i] = randomRectangle(rand, 0.01f);
-    }
+		public int callbackCount()
+		{
+			return count[0];
+		}
 
-    long duration;
-    long startTime;
 
-    for (int j = 0; j < 5; j++) {
-      duration = 0;
-      startTime = System.nanoTime();
-      for (int i = 0; i < rectangleCount; i++) {
-        tree.add(rects[i], i);
-      }
-      duration += (System.nanoTime() - startTime);
-      log.info("add " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
+		public String getDescription()
+		{
+			return description;
+		}
 
-      if (j == 4) break; // don't do the delete on the last iteration
 
-      duration = 0;
-      startTime = System.nanoTime();
-      for (int i = 0; i < rectangleCount; i++) {
-        tree.delete(rects[i], i);
-      }
-      duration += (System.nanoTime() - startTime);
-      log.info("delete " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
-    }
+		abstract void execute(RTree si, Random r);
+	}
 
-    ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-    try {
-      for (int i = 0; i < 100; i++) {
-        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearest",          new Random(0)) {
-        	@Override void execute(RTree si, Random r) {si.nearest         (randomPoint(r), countProc, 0.1f);}}, 100); }});
-        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearestNUnsorted", new Random(0)) {
-        	@Override void execute(RTree si, Random r) {si.nearestNUnsorted(randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
-        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("nearestN",         new Random(0)) {
-        	@Override void execute(RTree si, Random r) {si.nearestN        (randomPoint(r), countProc, 10, 0.16f);}}, 100); }});
-        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("intersects",       new Random(0)) {
-        	@Override void execute(RTree si, Random r) {si.intersects      (randomRectangle(r, 0.6f), countProc);}}, 100); }});
-        exec.submit(new Runnable() {@Override public void run() {benchmark(new Operation("contains",         new Random(0)) {
-        	@Override void execute(RTree si, Random r) {si.contains(        randomRectangle(r, 0.65f), countProc);}}, 100); }});
-      }
-      try { exec.awaitTermination(1, TimeUnit.DAYS); } catch (Exception e) {}
-    }
-    finally {
-      exec.shutdown();
-    }
-  }
+
+	private void benchmark(Operation o, int repetitions)
+	{
+		long duration = 0;
+		long startTime = System.nanoTime();
+		for ( int j = 0; j < repetitions; j++ ) o.execute(tree, o.random);
+		duration += (System.nanoTime() - startTime);
+
+		log.info(o.getDescription() + ", " +
+			"avg callbacks = " + ((float)o.callbackCount() / repetitions) + ", " +
+			"avg time = " + (duration / repetitions) + " ns");
+	}
+
+
+	/**
+	 * First attempt at a benchmark
+	 */
+	@Test
+	public void benchmark_1()
+	{
+		Random rand = new Random(0);
+		Properties p = new Properties();
+		p.setProperty("MinNodeEntries", "20");
+		p.setProperty("MaxNodeEntries", "50");
+		tree = new RTree(p);
+
+		final int rectangleCount = 1000000;
+		final Area[] rects = new Area[rectangleCount];
+		for ( int i = 0; i < rectangleCount; i++ ) {
+			rects[i] = randomRectangle(rand, 0.01f);
+		}
+
+		long duration;
+		long startTime;
+
+		for ( int j = 0; j < 5; j++ ) {
+			duration = 0;
+			startTime = System.nanoTime();
+			for ( int i = 0; i < rectangleCount; i++ ) {
+				tree.add(rects[i], i);
+			}
+			duration += (System.nanoTime() - startTime);
+			log.info("add " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
+
+			if ( j == 4 ) break; // don't do the delete on the last iteration
+
+			duration = 0;
+			startTime = System.nanoTime();
+			for ( int i = 0; i < rectangleCount; i++ ) {
+				tree.delete(rects[i], i);
+			}
+			duration += (System.nanoTime() - startTime);
+			log.info("delete " + rectangleCount + " avg tme = " + (duration / rectangleCount) + " ns");
+		}
+
+		ExecutorService exec = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+		try {
+			for ( int i = 0; i < 100; i++ ) {
+				exec.submit(new Runnable() {
+					@Override
+					public void run()
+					{
+						benchmark(new Operation("nearest", new Random(0)) {
+							@Override
+							void execute(RTree si, Random r)
+							{
+								si.nearest(randomPoint(r), countProc, 0.1f);
+							}
+						}, 100);
+					}
+				});
+				exec.submit(new Runnable() {
+					@Override
+					public void run()
+					{
+						benchmark(new Operation("nearestNUnsorted", new Random(0)) {
+							@Override
+							void execute(RTree si, Random r)
+							{
+								si.nearestNUnsorted(randomPoint(r), countProc, 10, 0.16f);
+							}
+						}, 100);
+					}
+				});
+				exec.submit(new Runnable() {
+					@Override
+					public void run()
+					{
+						benchmark(new Operation("nearestN", new Random(0)) {
+							@Override
+							void execute(RTree si, Random r)
+							{
+								si.nearestN(randomPoint(r), countProc, 10, 0.16f);
+							}
+						}, 100);
+					}
+				});
+				exec.submit(new Runnable() {
+					@Override
+					public void run()
+					{
+						benchmark(new Operation("intersects", new Random(0)) {
+							@Override
+							void execute(RTree si, Random r)
+							{
+								si.intersects(randomRectangle(r, 0.6f), countProc);
+							}
+						}, 100);
+					}
+				});
+				exec.submit(new Runnable() {
+					@Override
+					public void run()
+					{
+						benchmark(new Operation("contains", new Random(0)) {
+							@Override
+							void execute(RTree si, Random r)
+							{
+								si.contains(randomRectangle(r, 0.65f), countProc);
+							}
+						}, 100);
+					}
+				});
+			}
+			try {
+				exec.awaitTermination(1, TimeUnit.DAYS);
+			}
+			catch (Exception e) {}
+		}
+		finally {
+			exec.shutdown();
+		}
+	}
 }

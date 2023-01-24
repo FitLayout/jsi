@@ -33,7 +33,6 @@ import java.util.List;
  * <li>Low memory requirements.</li>
  * </ul>
  * <p>
-
  * The main reason for the high speed of this implementation is the
  * avoidance of the creation of unnecessary objects, mainly achieved by using
  * primitive collections.
@@ -46,7 +45,7 @@ public class SpatialIndex extends RTreeBase implements Serializable
 	private final int rootNodeId;
 	private final int size;
 
-	
+
 	SpatialIndex(List<Node> nodes, int rootNodeId, int size)
 	{
 		this.nodes = nodes;
@@ -54,7 +53,7 @@ public class SpatialIndex extends RTreeBase implements Serializable
 		this.size = size;
 	}
 
-	
+
 	/**
 	 * Returns the number of entries in the spatial index
 	 */
@@ -63,7 +62,7 @@ public class SpatialIndex extends RTreeBase implements Serializable
 		return size;
 	}
 
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -73,7 +72,7 @@ public class SpatialIndex extends RTreeBase implements Serializable
 		super.nearest(p, v, furthestDistance);
 	}
 
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -113,18 +112,18 @@ public class SpatialIndex extends RTreeBase implements Serializable
 		super.contains(r, v);
 	}
 
-	
+
 	@Override
 	protected int getRoodNodeId()
 	{
 		return rootNodeId;
 	}
-	
-	
+
+
 	@Override
 	protected Node getNode(int id)
 	{
-		return id<0 || id>=nodes.size() ? null : nodes.get(id);
+		return id < 0 || id >= nodes.size() ? null : nodes.get(id);
 	}
 
 }

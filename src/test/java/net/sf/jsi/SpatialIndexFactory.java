@@ -20,16 +20,21 @@ package net.sf.jsi;
 
 import java.util.Properties;
 
+
 /**
  * Factory class used to create instances of spatial indexes
  */
-public class SpatialIndexFactory {
-  
-  public static RTree newInstance(String type) {
-    return newInstance(type, null);
-  }
-  
-  public static RTree newInstance(String type, Properties props) {
-    return new RTree(props);
-  }
+public class SpatialIndexFactory
+{
+
+	public static RTree newInstance(String type)
+	{
+		return newInstance(type, null);
+	}
+
+
+	public static RTree newInstance(String type, Properties props)
+	{
+		return new RTree(props);
+	}
 }

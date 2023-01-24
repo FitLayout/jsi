@@ -21,91 +21,105 @@ package net.sf.jsi;
 import java.util.ArrayList;
 import java.util.List;
 
+
 /**
  * ListDecorator
  */
-public class ListDecorator {
- RTree m_si = null;
- 
- public ListDecorator(RTree si) {
-   m_si = si;
- }
- 
- class AddToListProcedure implements AreaCallback {
-   private List<Integer> m_list = new ArrayList<Integer>();
-   
-   @Override
-   public boolean processArea(int id) {
-     m_list.add(new Integer(id));
-     return true;
-   }
-   
-   public List<Integer> getList() {
-     return m_list;	
-   }	
- }
- 
- /**
-   * Finds all rectangles that are nearest to the passed 
-   * rectangle.
-   * 
-   * @param  p The p point which this method finds
-   *           the nearest neighbours.
-   * 
-   * @return List of IDs of rectangles that are nearest
-   *         to the passed rectangle, ordered by distance (nearest first).
-   */
-  public List<Integer> nearest(Spot p, float furthestDistance) {
-  	AddToListProcedure v = new AddToListProcedure();
-    m_si.nearest(p, v, furthestDistance);	
-    return v.getList();
-  }
-  
-  /**
-   * Finds all rectangles that are nearest to the passed 
-   * rectangle.
-   * 
-   * @param  p The p point which this method finds
-   *           the nearest neighbours.
-   * 
-   * @return List of IDs of rectangles that are nearest
-   *         to the passed rectangle, ordered by distance (nearest first).
-   *         If multiple rectangles have the same distance, order by ID.
-   */
-  public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance) {
-    AddToListProcedure v = new AddToListProcedure();
-    m_si.nearestN(p, v, maxCount, furthestDistance); 
-    return v.getList();
-  }
-  
-  /**
-   * Finds all rectangles that intersect the passed rectangle.
-   * 
-   * @param  r The rectangle for which this method finds
-   *           intersecting rectangles.
-   * 
-   * @return List of IDs of rectangles that intersect the passed
-   *         rectangle.
-   */
-  public List<Integer> intersects(Area r) {
-  	AddToListProcedure v = new AddToListProcedure();
-    m_si.intersects(r, v);	
-    return v.getList();
-  }
-  
-  /**
-   * Finds all rectangles contained by the passed rectangle.
-   * 
-   * @param  r The rectangle for which this method finds
-   *           contained rectangles.
-   * 
-   * @return Collection of IDs of rectangles that are contained by the
-   *         passed rectangle.
-   */
-  public List<Integer> contains(Area r) {
-  	AddToListProcedure v = new AddToListProcedure();
-    m_si.contains(r, v);	
-    return v.getList();
-  }
- 
+public class ListDecorator
+{
+	RTree m_si = null;
+
+
+	public ListDecorator(RTree si)
+	{
+		m_si = si;
+	}
+
+
+	class AddToListProcedure implements AreaCallback
+	{
+		private List<Integer> m_list = new ArrayList<Integer>();
+
+
+		@Override
+		public boolean processArea(int id)
+		{
+			m_list.add(new Integer(id));
+			return true;
+		}
+
+
+		public List<Integer> getList()
+		{
+			return m_list;
+		}
+	}
+
+
+	/**
+	 * Finds all rectangles that are nearest to the passed
+	 * rectangle.
+	 * 
+	 * @param p The p point which this method finds
+	 *        the nearest neighbours.
+	 * @return List of IDs of rectangles that are nearest
+	 *         to the passed rectangle, ordered by distance (nearest first).
+	 */
+	public List<Integer> nearest(Spot p, float furthestDistance)
+	{
+		AddToListProcedure v = new AddToListProcedure();
+		m_si.nearest(p, v, furthestDistance);
+		return v.getList();
+	}
+
+
+	/**
+	 * Finds all rectangles that are nearest to the passed
+	 * rectangle.
+	 * 
+	 * @param p The p point which this method finds
+	 *        the nearest neighbours.
+	 * @return List of IDs of rectangles that are nearest
+	 *         to the passed rectangle, ordered by distance (nearest first).
+	 *         If multiple rectangles have the same distance, order by ID.
+	 */
+	public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance)
+	{
+		AddToListProcedure v = new AddToListProcedure();
+		m_si.nearestN(p, v, maxCount, furthestDistance);
+		return v.getList();
+	}
+
+
+	/**
+	 * Finds all rectangles that intersect the passed rectangle.
+	 * 
+	 * @param r The rectangle for which this method finds
+	 *        intersecting rectangles.
+	 * @return List of IDs of rectangles that intersect the passed
+	 *         rectangle.
+	 */
+	public List<Integer> intersects(Area r)
+	{
+		AddToListProcedure v = new AddToListProcedure();
+		m_si.intersects(r, v);
+		return v.getList();
+	}
+
+
+	/**
+	 * Finds all rectangles contained by the passed rectangle.
+	 * 
+	 * @param r The rectangle for which this method finds
+	 *        contained rectangles.
+	 * @return Collection of IDs of rectangles that are contained by the
+	 *         passed rectangle.
+	 */
+	public List<Integer> contains(Area r)
+	{
+		AddToListProcedure v = new AddToListProcedure();
+		m_si.contains(r, v);
+		return v.getList();
+	}
+
 }

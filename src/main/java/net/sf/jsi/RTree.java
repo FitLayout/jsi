@@ -39,7 +39,6 @@ import java.util.logging.Logger;
  * <li>Fast add performance.</li>
  * </ul>
  * </p>
- *
  * <p>
  * The main reason for the high speed of this implementation is the
  * avoidance of the creation of unnecessary objects, mainly achieved by using
@@ -49,8 +48,8 @@ import java.util.logging.Logger;
 public class RTree extends RTreeBase implements Serializable
 {
 	private static final long serialVersionUID = 8440068248349540350L;
-	
-	private static final Logger log    = Logger.getLogger(RTree.class.getName());
+
+	private static final Logger log = Logger.getLogger(RTree.class.getName());
 	private static final Logger logDel = Logger.getLogger(RTree.class.getName() + "-delete");
 
 	// internal consistency checking - set to true if debugging tree corruption
@@ -61,8 +60,7 @@ public class RTree extends RTreeBase implements Serializable
 	private final static int ENTRY_STATUS_ASSIGNED = 0;
 	private final static int ENTRY_STATUS_UNASSIGNED = 1;
 
-	
-	private final boolean isDebug    = log.isLoggable(Level.FINE);
+	private final boolean isDebug = log.isLoggable(Level.FINE);
 	private final boolean isDebugDel = logDel.isLoggable(Level.FINE);
 
 	/** Parameters of the tree */
@@ -82,7 +80,7 @@ public class RTree extends RTreeBase implements Serializable
 	 * Actually nodes are never reused, this array allows to use a list as node-map, though.
 	 */
 	private final IntArray deletedNodeIds = new IntArray();
-	
+
 	/** Cached instance used to mark the status of entries during a node split. */
 	private final byte[] entryStatus;
 
@@ -104,7 +102,7 @@ public class RTree extends RTreeBase implements Serializable
 		this(null);
 	}
 
-	
+
 	/**
 	 * <p>
 	 * Initialize implementation dependent properties of the RTree.
@@ -149,7 +147,7 @@ public class RTree extends RTreeBase implements Serializable
 		if ( isDebug ) log.fine("init() " + " MaxNodeEntries = " + maxNodeEntries + ", MinNodeEntries = " + minNodeEntries);
 	}
 
-	
+
 	public void clear()
 	{
 		nodeMap.clear();
@@ -161,8 +159,8 @@ public class RTree extends RTreeBase implements Serializable
 		size = 0;
 		putNode(rootNodeId, new Node(rootNodeId, 1, maxNodeEntries));
 	}
-	
-	
+
+
 	/**
 	 * <b>Transfers</b> all nodes of this instance into a {@link SpatialIndex}.
 	 * This tree will be empty afterwards.
@@ -172,18 +170,19 @@ public class RTree extends RTreeBase implements Serializable
 	 */
 	public SpatialIndex toIndex()
 	{
-		if ( size==0 ) return new SpatialIndex(new ArrayList<>(), 0, 0);
-		
+		if ( size == 0 ) return new SpatialIndex(new ArrayList<>(), 0, 0);
+
 		int deleted = deletedNodeIds.size();
 		while ( !deletedNodeIds.isEmpty() ) {
 			int idx = deletedNodeIds.pop();
-			if ( idx<nodeMap.size() ) nodeMap.set(idx, null);
+			if ( idx < nodeMap.size() ) nodeMap.set(idx, null);
 		}
 
-		SpatialIndex result; 
-		if ( size<128 || deleted==0 || deleted<size / 10 ) {
+		SpatialIndex result;
+		if ( size < 128 || deleted == 0 || deleted < size / 10 ) {
 			result = new SpatialIndex(nodeMap, rootNodeId, size);
-		} else {
+		}
+		else {
 			// TODO: compact nodemap and rewrite indexes in nodes.
 			result = new SpatialIndex(nodeMap, rootNodeId, size);
 		}
@@ -191,8 +190,8 @@ public class RTree extends RTreeBase implements Serializable
 		clear();
 		return result;
 	}
-	
-	
+
+
 	/**
 	 * Returns the number of entries in the spatial index
 	 */
@@ -201,7 +200,7 @@ public class RTree extends RTreeBase implements Serializable
 		return size;
 	}
 
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -211,7 +210,7 @@ public class RTree extends RTreeBase implements Serializable
 		super.nearest(p, v, furthestDistance);
 	}
 
-	
+
 	/**
 	 * {@inheritDoc}
 	 */
@@ -251,11 +250,11 @@ public class RTree extends RTreeBase implements Serializable
 		super.contains(r, v);
 	}
 
-	
+
 	public void add(SpatialIndex tree)
 	{
 		for ( Node n : tree.nodes ) {
-			if ( n==null || !n.isLeaf() ) continue;
+			if ( n == null || !n.isLeaf() ) continue;
 			for ( int i = 0; i < n.entryCount; i++ ) {
 				add(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], n.ids[i], 1);
 				size++;
@@ -264,7 +263,7 @@ public class RTree extends RTreeBase implements Serializable
 		}
 	}
 
-	
+
 	/**
 	 * Adds a new rectangle to the spatial index
 	 *
@@ -289,7 +288,6 @@ public class RTree extends RTreeBase implements Serializable
 	 * @param r The rectangle to delete from the spatial index
 	 * @param id The ID of the rectangle to delete from the spatial
 	 *        index
-	 *
 	 * @return true if the rectangle was deleted
 	 *         false if the rectangle was not found, or the
 	 *         rectangle was found but with a different ID
@@ -324,8 +322,7 @@ public class RTree extends RTreeBase implements Serializable
 				boolean contains = false;
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
 					if ( Area.contains(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i],
-						r.minX, r.minY, r.maxX, r.maxY) )
-					{
+						r.minX, r.minY, r.maxX, r.maxY) ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
@@ -337,7 +334,8 @@ public class RTree extends RTreeBase implements Serializable
 				if ( contains ) {
 					continue;
 				}
-			} else {
+			}
+			else {
 				foundIndex = n.findEntry(r.minX, r.minY, r.maxX, r.maxY, id);
 			}
 
@@ -379,7 +377,7 @@ public class RTree extends RTreeBase implements Serializable
 		return (foundIndex != -1);
 	}
 
-	
+
 	/**
 	 * Adds a new entry at a specified level in the tree
 	 */
@@ -395,7 +393,8 @@ public class RTree extends RTreeBase implements Serializable
 		// E and all the old entries of L
 		if ( n.entryCount < maxNodeEntries ) {
 			n.addEntry(minX, minY, maxX, maxY, id);
-		} else {
+		}
+		else {
 			newLeaf = splitNode(n, minX, minY, maxX, maxY, id);
 		}
 
@@ -421,7 +420,6 @@ public class RTree extends RTreeBase implements Serializable
 	 * Split a node. Algorithm is taken pretty much verbatim from
 	 * Guttman's original paper.
 	 * <p>
-	 * 
 	 * Initializes {@link #entryStatus}, which is used by "child methods".
 	 *
 	 * @return new node object.
@@ -520,10 +518,8 @@ public class RTree extends RTreeBase implements Serializable
 	/**
 	 * Pick the seeds used to split a node.
 	 * <p>
-	 * 
 	 * Select two entries to be the first elements of the groups.
 	 * <p>
-	 * 
 	 * Used by {@link #splitNode(Node, float, float, float, float, int)} and
 	 * uses {@link #entryStatus}.
 	 */
@@ -561,7 +557,8 @@ public class RTree extends RTreeBase implements Serializable
 			if ( tempLow >= tempHighestLow ) {
 				tempHighestLow = tempLow;
 				tempHighestLowIndex = i;
-			} else { // ensure that the same index cannot be both lowestHigh and highestLow
+			}
+			else { // ensure that the same index cannot be both lowestHigh and highestLow
 				float tempHigh = n.entriesMaxX[i];
 				if ( tempHigh <= tempLowestHigh ) {
 					tempLowestHigh = tempHigh;
@@ -608,7 +605,8 @@ public class RTree extends RTreeBase implements Serializable
 			if ( tempLow >= tempHighestLow ) {
 				tempHighestLow = tempLow;
 				tempHighestLowIndex = i;
-			} else { // ensure that the same index cannot be both lowestHigh and highestLow
+			}
+			else { // ensure that the same index cannot be both lowestHigh and highestLow
 				float tempHigh = n.entriesMaxY[i];
 				if ( tempHigh <= tempLowestHigh ) {
 					tempLowestHigh = tempHigh;
@@ -625,7 +623,8 @@ public class RTree extends RTreeBase implements Serializable
 			}
 
 			if ( isDebug ) {
-				log.fine("Entry " + i + ", dimension Y: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")" + ", LowestHigh = "
+				log.fine("Entry " + i + ", dimension Y: HighestLow = " + tempHighestLow + " (index " + tempHighestLowIndex + ")"
+					+ ", LowestHigh = "
 					+ tempLowestHigh + " (index " + tempLowestHighIndex + ", NormalizedSeparation = " + normalizedSeparation);
 			}
 
@@ -654,7 +653,8 @@ public class RTree extends RTreeBase implements Serializable
 				if ( n.entriesMinY[i] < tempMinY ) {
 					tempMinY = n.entriesMinY[i];
 					highestLowIndex = i;
-				} else if ( n.entriesMaxX[i] > tempMaxX ) {
+				}
+				else if ( n.entriesMaxX[i] > tempMaxX ) {
 					tempMaxX = n.entriesMaxX[i];
 					lowestHighIndex = i;
 				}
@@ -664,7 +664,8 @@ public class RTree extends RTreeBase implements Serializable
 		// highestLowIndex is the seed for the new node.
 		if ( highestLowIndex == -1 ) {
 			newNode.addEntry(newRectMinX, newRectMinY, newRectMaxX, newRectMaxY, newId);
-		} else {
+		}
+		else {
 			newNode.addEntry(n.entriesMinX[highestLowIndex], n.entriesMinY[highestLowIndex],
 				n.entriesMaxX[highestLowIndex], n.entriesMaxY[highestLowIndex], n.ids[highestLowIndex]);
 			n.ids[highestLowIndex] = -1;
@@ -695,12 +696,10 @@ public class RTree extends RTreeBase implements Serializable
 	/**
 	 * Pick the next entry to be assigned to a group during a node split.
 	 * <p>
-	 *
 	 * [Determine cost of putting each entry in each group]
 	 * For each entry not yet in a group, calculate the area increase required
 	 * in the covering rectangles of each group.
 	 * <p>
-	 * 
 	 * Used by {@link #splitNode(Node, float, float, float, float, int)} and
 	 * uses {@link #entryStatus}.
 	 */
@@ -755,7 +754,8 @@ public class RTree extends RTreeBase implements Serializable
 					maxDifference = difference;
 				}
 				if ( isDebug ) {
-					log.fine("Entry " + i + " group0 increase = " + nIncrease + ", group1 increase = " + newNodeIncrease + ", diff = " + difference
+					log.fine("Entry " + i + " group0 increase = " + nIncrease + ", group1 increase = " + newNodeIncrease + ", diff = "
+						+ difference
 						+ ", MaxDiff = " + maxDifference + " (entry " + next + ")");
 				}
 			}
@@ -769,7 +769,8 @@ public class RTree extends RTreeBase implements Serializable
 			if ( n.entriesMaxX[next] > n.mbrMaxX ) n.mbrMaxX = n.entriesMaxX[next];
 			if ( n.entriesMaxY[next] > n.mbrMaxY ) n.mbrMaxY = n.entriesMaxY[next];
 			n.entryCount++;
-		} else {
+		}
+		else {
 			// move to new node.
 			newNode.addEntry(n.entriesMinX[next], n.entriesMinY[next], n.entriesMaxX[next], n.entriesMaxY[next], n.ids[next]);
 			n.ids[next] = -1;
@@ -782,7 +783,6 @@ public class RTree extends RTreeBase implements Serializable
 	/**
 	 * Ensures that all nodes from the passed node up to the root have the minimum number of entries.
 	 * <p>
-	 * 
 	 * Used by {@link #delete(Area, int)}, uses {@link #parents} and {@link #parentsEntry},
 	 * both stacks are expected to contain the nodeIds of all parents up to the root.
 	 */
@@ -807,12 +807,12 @@ public class RTree extends RTreeBase implements Serializable
 			if ( n.entryCount < minNodeEntries ) {
 				parent.deleteEntry(parentEntry);
 				eliminatedNodeIds.push(n.nodeId);
-			} else {
+			}
+			else {
 				// CT4 [Adjust covering rectangle] If N has not been eliminated,
 				// adjust EnI to tightly contain all entries in N
 				if ( n.mbrMinX != parent.entriesMinX[parentEntry] || n.mbrMinY != parent.entriesMinY[parentEntry]
-					|| n.mbrMaxX != parent.entriesMaxX[parentEntry] || n.mbrMaxY != parent.entriesMaxY[parentEntry] )
-				{
+					|| n.mbrMaxX != parent.entriesMaxX[parentEntry] || n.mbrMaxY != parent.entriesMaxY[parentEntry] ) {
 					float deletedMinX = parent.entriesMinX[parentEntry];
 					parent.entriesMinX[parentEntry] = n.mbrMinX;
 					float deletedMinY = parent.entriesMinY[parentEntry];
@@ -848,7 +848,6 @@ public class RTree extends RTreeBase implements Serializable
 	/**
 	 * Chooses a leaf to add the rectangle to.
 	 * <p>
-	 * 
 	 * Used by {@link #add(float, float, float, float, int, int)},
 	 * initializes {@link #parents} and {@link #parentsEntry}.
 	 */
@@ -904,7 +903,6 @@ public class RTree extends RTreeBase implements Serializable
 	 * Ascend from a leaf node L to the root, adjusting covering rectangles and
 	 * propagating node splits as necessary.
 	 * <p>
-	 * 
 	 * Used by {@link #add(float, float, float, float, int, int)}, uses {@link #parents} and {@link #parentsEntry}.
 	 */
 	private Node adjustTree(Node n, Node nn)
@@ -927,8 +925,7 @@ public class RTree extends RTreeBase implements Serializable
 			}
 
 			if ( parent.entriesMinX[entry] != n.mbrMinX || parent.entriesMinY[entry] != n.mbrMinY
-				|| parent.entriesMaxX[entry] != n.mbrMaxX || parent.entriesMaxY[entry] != n.mbrMaxY )
-			{
+				|| parent.entriesMaxX[entry] != n.mbrMaxX || parent.entriesMaxY[entry] != n.mbrMaxY ) {
 
 				parent.entriesMinX[entry] = n.mbrMinX;
 				parent.entriesMinY[entry] = n.mbrMinY;
@@ -947,7 +944,8 @@ public class RTree extends RTreeBase implements Serializable
 			if ( nn != null ) {
 				if ( parent.entryCount < maxNodeEntries ) {
 					parent.addEntry(nn.mbrMinX, nn.mbrMinY, nn.mbrMaxX, nn.mbrMaxY, nn.nodeId);
-				} else {
+				}
+				else {
 					newNode = splitNode(parent, nn.mbrMinX, nn.mbrMinY, nn.mbrMaxX, nn.mbrMaxY, nn.nodeId);
 				}
 			}
@@ -981,8 +979,8 @@ public class RTree extends RTreeBase implements Serializable
 		}
 		return mbr;
 	}
-	
-	
+
+
 	/**
 	 * Check the consistency of the tree.
 	 *
@@ -1053,8 +1051,7 @@ public class RTree extends RTreeBase implements Serializable
 
 			if ( n.level > 1 ) { // if not a leaf
 				if ( !checkConsistency(n.ids[i], n.level - 1,
-					new Area(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) )
-				{
+					new Area(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i])) ) {
 					return false;
 				}
 			}
@@ -1062,21 +1059,21 @@ public class RTree extends RTreeBase implements Serializable
 		return true;
 	}
 
-	
+
 	@Override
 	protected int getRoodNodeId()
 	{
 		return rootNodeId;
 	}
-	
-	
+
+
 	@Override
 	protected Node getNode(int id)
 	{
-		return id<0 || id>=nodeMap.size() ? null : nodeMap.get(id);
+		return id < 0 || id >= nodeMap.size() ? null : nodeMap.get(id);
 	}
 
-	
+
 	/**
 	 * Get the next available node ID. Reuse deleted node IDs if possible.
 	 */
@@ -1088,14 +1085,15 @@ public class RTree extends RTreeBase implements Serializable
 
 	private void putNode(int id, Node node)
 	{
-		if ( id==nodeMap.size() ) nodeMap.add(node); else nodeMap.set(id, node);
+		if ( id == nodeMap.size() ) nodeMap.add(node);
+		else nodeMap.set(id, node);
 	}
 
-	
+
 	private void removeNode(int id)
 	{
 		deletedNodeIds.push(id);
-		//if ( id!=nodeMap.size() ) nodeMap.set(id, null);
+		// if ( id!=nodeMap.size() ) nodeMap.set(id, null);
 	}
-	
+
 }

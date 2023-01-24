@@ -26,16 +26,17 @@ abstract class RTreeBase
 	protected RTreeBase()
 	{
 	}
-	
-	
+
+
 	protected abstract int getRoodNodeId();
-	
+
+
 	/**
 	 * Get a node object, given the ID of the node.
 	 */
 	protected abstract Node getNode(int id);
 
-	
+
 	/**
 	 * Returns the bounds of all the entries in the spatial index,
 	 * or null if there are no entries.
@@ -59,22 +60,17 @@ abstract class RTreeBase
 	/**
 	 * Finds the nearest rectangles to the passed rectangle and calls
 	 * v.execute(id) for each one.
-	 *
 	 * If multiple rectangles are equally near, they will
 	 * all be returned.
 	 *
 	 * @param p The point for which this method finds the
 	 *        nearest neighbours.
-	 *
 	 * @param v The IntProcedure whose execute() method is is called
 	 *        for each nearest neighbour.
-	 *
 	 * @param furthestDistance The furthest distance away from the rectangle
 	 *        to search. Rectangles further than this will not be found.
-	 *
 	 *        This should be as small as possible to minimise
 	 *        the search time.
-	 *
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
@@ -88,7 +84,7 @@ abstract class RTreeBase
 		nearestIds.forEach(v);
 	}
 
-	
+
 	/**
 	 * Same as nearestN, except the found rectangles are not returned
 	 * in sorted order. This will be faster, if sorting is not required
@@ -117,26 +113,20 @@ abstract class RTreeBase
 	/**
 	 * Finds the N nearest rectangles to the passed rectangle, and calls
 	 * execute(id, distance) on each one, in order of increasing distance.
-	 *
 	 * Note that fewer than N rectangles may be found if fewer entries
 	 * exist within the specified furthest distance, or more if rectangles
 	 * N and N+1 have equal distances.
 	 *
 	 * @param p The point for which this method finds the
 	 *        nearest neighbours.
-	 *
 	 * @param v The IntfloatProcedure whose execute() method is is called
 	 *        for each nearest neighbour.
-	 *
 	 * @param count The desired number of rectangles to find (but note that
 	 *        fewer or more may be returned)
-	 *
 	 * @param furthestDistance The furthest distance away from the rectangle
 	 *        to search. Rectangles further than this will not be found.
-	 *
 	 *        This should be as small as possible to minimise
 	 *        the search time.
-	 *
 	 *        Use Float.POSITIVE_INFINITY to guarantee that the nearest rectangle is found,
 	 *        no matter how far away, although this will slow down the algorithm.
 	 */
@@ -158,7 +148,6 @@ abstract class RTreeBase
 	 *
 	 * @param r The rectangle for which this method finds
 	 *        intersecting rectangles.
-	 *
 	 * @param v The IntProcedure whose execute() method is is called
 	 *        for each intersecting rectangle.
 	 */
@@ -174,7 +163,6 @@ abstract class RTreeBase
 	 *
 	 * @param r The rectangle for which this method finds
 	 *        contained rectangles.
-	 *
 	 * @param v The procedure whose visit() method is is called
 	 *        for each contained rectangle.
 	 */
@@ -202,22 +190,21 @@ abstract class RTreeBase
 				// could contain entries that are contained.
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
 					if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY,
-						n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) )
-					{
+						n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
 						parentsEntry.push(-1);
 						continue LOOP;
+					}
 				}
-				}
-			} else {
+			}
+			else {
 				// go through every entry in the leaf to check if
 				// it is contained by the passed rectangle
 				for ( int i = 0; i < n.entryCount; i++ ) {
 					if ( Area.contains(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i],
-						n.entriesMaxX[i], n.entriesMaxY[i]) )
-					{
+						n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 						if ( !v.processArea(n.ids[i]) ) return;
 					}
 				}
@@ -259,19 +246,22 @@ abstract class RTreeBase
 				// if it could contain an entry closer than the farthest entry
 				// currently stored.
 				for ( int i = startIndex; i < n.entryCount; i++ ) {
-					if ( Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y) <= furthestDistanceSq ) {
+					if ( Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x,
+						p.y) <= furthestDistanceSq ) {
 						parents.push(n.ids[i]);
 						parentsEntry.pop();
 						parentsEntry.push(i); // this becomes the start index when the child has been searched
 						parentsEntry.push(-1);
 						continue LOOP;
+					}
 				}
-				}
-			} else {
+			}
+			else {
 				// go through every entry in the leaf to check if
 				// it is currently one of the nearest N entries.
 				for ( int i = 0; i < n.entryCount; i++ ) {
-					float entryDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x, p.y);
+					float entryDistanceSq = Area.distanceSq(n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i], p.x,
+						p.y);
 					int entryId = n.ids[i];
 
 					if ( entryDistanceSq <= furthestDistanceSq ) {
@@ -287,7 +277,8 @@ abstract class RTreeBase
 							if ( distanceSq == distanceQueue.getPriority() ) {
 								savedValues.add(value);
 								savedPriority = distanceSq;
-							} else {
+							}
+							else {
 								savedValues.reset();
 							}
 						}
@@ -335,7 +326,8 @@ abstract class RTreeBase
 				if ( tempDistanceSq <= furthestDistanceSq ) {
 					nearestIds.add(n.ids[i]);
 				}
-			} else { // for index nodeMap, only go into them if they potentially could have
+			}
+			else { // for index nodeMap, only go into them if they potentially could have
 				// a rectangle nearer than actualNearest
 				if ( tempDistanceSq <= furthestDistanceSq ) {
 					// search the child node
@@ -351,7 +343,6 @@ abstract class RTreeBase
 	 * Recursively searches the tree for all intersecting entries.
 	 * Immediately calls execute() on the passed IntProcedure when
 	 * a matching entry is found.
-	 *
 	 * TODO rewrite this to be non-recursive? Make sure it doesn't slow it down.
 	 */
 	private boolean intersects(Area r, AreaCallback v, Node n)
@@ -360,7 +351,8 @@ abstract class RTreeBase
 			if ( Area.intersects(r.minX, r.minY, r.maxX, r.maxY, n.entriesMinX[i], n.entriesMinY[i], n.entriesMaxX[i], n.entriesMaxY[i]) ) {
 				if ( n.isLeaf() ) {
 					if ( !v.processArea(n.ids[i]) ) return false;
-				} else {
+				}
+				else {
 					Node childNode = getNode(n.ids[i]);
 					if ( !intersects(r, v, childNode) ) return false;
 				}
@@ -368,5 +360,5 @@ abstract class RTreeBase
 		}
 		return true;
 	}
-	
+
 }

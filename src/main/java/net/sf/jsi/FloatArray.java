@@ -23,124 +23,124 @@ import java.io.ObjectOutput;
 import java.util.Arrays;
 import java.util.function.DoublePredicate;
 
+
 /**
- * 
  * @author <a href="mailto:gunnar.brand@interface-projects.de">Gunnar Brand</a>
  * @since 04.08.2021
  */
 final class FloatArray implements Externalizable
 {
 	private final static float[] EMPTY = {};
-	
+
 	private float[] _data = EMPTY;
 	private int _size = 0;
 
-	
+
 	public FloatArray()
 	{
 		_data = EMPTY;
 	}
 
-	
+
 	public FloatArray(int size)
 	{
-		_data = size==0 ? EMPTY : new float[size];
-	}
-	
-	
-	public boolean isEmpty()
-	{
-		return _size==0;
+		_data = size == 0 ? EMPTY : new float[size];
 	}
 
-	
+
+	public boolean isEmpty()
+	{
+		return _size == 0;
+	}
+
+
 	public int size()
 	{
 		return _size;
 	}
-	
-	
+
+
 	public void reset()
 	{
 		_size = 0;
 	}
 
-	
+
 	public void clear()
 	{
-		if ( _data.length>8 ) _data = EMPTY;
+		if ( _data.length > 8 ) _data = EMPTY;
 		_size = 0;
 	}
-	
-	
+
+
 	public boolean add(float v)
 	{
 		push(v);
 		return true;
 	}
-	
+
 
 	public void push(float v)
 	{
 		if ( _size >= _data.length ) {
-			_data = Arrays.copyOf(_data, _size<8 ? 8 : _size * 2);
+			_data = Arrays.copyOf(_data, _size < 8 ? 8 : _size * 2);
 		}
 		_data[_size++] = v;
 	}
 
-	
+
 	public float peek() throws ArrayIndexOutOfBoundsException
 	{
 		return _data[_size - 1];
 	}
-	
-	
+
+
 	public float pop() throws ArrayIndexOutOfBoundsException
 	{
-		if ( _size==0 ) throw new ArrayIndexOutOfBoundsException(-1);
+		if ( _size == 0 ) throw new ArrayIndexOutOfBoundsException(-1);
 		return _data[--_size];
 	}
-	
-	
+
+
 	public float get(int index) throws ArrayIndexOutOfBoundsException
 	{
-		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
+		if ( index >= _size ) throw new ArrayIndexOutOfBoundsException(index);
 		return _data[index];
 	}
 
-	
+
 	public float set(int index, float value) throws ArrayIndexOutOfBoundsException
 	{
-		if ( index>=_size ) throw new ArrayIndexOutOfBoundsException(index);
+		if ( index >= _size ) throw new ArrayIndexOutOfBoundsException(index);
 		float old = _data[index];
 		_data[index] = value;
 		return old;
 	}
 
-	
+
 	public boolean forEach(DoublePredicate cb)
 	{
-		for ( int i = 0, e = _size; i<e; i++ ) {
+		for ( int i = 0, e = _size; i < e; i++ ) {
 			if ( !cb.test(_data[i]) ) return false;
 		}
 		return true;
 	}
-	
-	
+
+
 	@Override
 	public void writeExternal(ObjectOutput out) throws IOException
 	{
 		out.writeInt(_size);
-		for ( int i = 0, e = _size; i<e; i++ ) out.writeFloat(_data[i]);
+		for ( int i = 0, e = _size; i < e; i++ ) out.writeFloat(_data[i]);
 	}
-	
-	
+
+
 	@Override
 	public void readExternal(ObjectInput in) throws IOException
 	{
 		_size = in.readInt();
-		_data = _size==0 ? EMPTY : new float[_size];
-		for ( int i = 0, e = _size; i<e; i++ ) _data[i] = in.readFloat(); 
+		_data = _size == 0 ? EMPTY : new float[_size];
+		for ( int i = 0, e = _size; i < e; i++ ) _data[i] = in.readFloat();
 	}
 
 }

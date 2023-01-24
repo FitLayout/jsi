@@ -200,7 +200,8 @@ class PriorityQueue implements Serializable
 				values.set(index, values.get(childIndex));
 				index = childIndex;
 				childIndex = (index * 2) + 1;
-			} else {
+			}
+			else {
 				break;
 			}
 		}

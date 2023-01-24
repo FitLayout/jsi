@@ -24,45 +24,55 @@ import java.util.Random;
 import net.sf.jsi.Area;
 import junit.framework.TestCase;
 
-public class MoveEntriesTest extends TestCase {
 
-  Random r = new Random();
+public class MoveEntriesTest extends TestCase
+{
 
-  public MoveEntriesTest(String name) {
-    super(name);
-    r.setSeed(0);
-  }
+	Random r = new Random();
 
-  private Area nextRect() {
-    return new Area(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100));
-  }
 
-  public void testMoveEntries() {
-    run(4, 50, 4, 10);
-  }
+	public MoveEntriesTest(String name)
+	{
+		super(name);
+		r.setSeed(0);
+	}
 
-  private void run(int minNodeEntries, int maxNodeEntries, int numRects, int numMoves) {
-    Properties p = new Properties();
-    p.setProperty("MinNodeEntries", Integer.toString(minNodeEntries));
-    p.setProperty("MaxNodeEntries", Integer.toString(maxNodeEntries));
-    RTree rtree = SpatialIndexFactory.newInstance("rtree.RTree", p);
 
-    Area[] rects = new Area[numRects];
+	private Area nextRect()
+	{
+		return new Area(r.nextInt(100), r.nextInt(100), r.nextInt(100), r.nextInt(100));
+	}
 
-    // first add the rects
-    for (int i = 0; i < numRects; i++) {
-      rects[i] = nextRect();
-      rtree.add(rects[i], i);
-    }
 
-    // now move each one in turn
-    for (int move = 0; move < numMoves; move++) {
-      for (int i = 0; i < numRects; i++) {
-        rtree.delete(rects[i], i);
-        rects[i].set(nextRect());
-        rtree.add(rects[i], i);
-        assertTrue(rtree.checkConsistency());
-      }
-    }
-  }
+	public void testMoveEntries()
+	{
+		run(4, 50, 4, 10);
+	}
+
+
+	private void run(int minNodeEntries, int maxNodeEntries, int numRects, int numMoves)
+	{
+		Properties p = new Properties();
+		p.setProperty("MinNodeEntries", Integer.toString(minNodeEntries));
+		p.setProperty("MaxNodeEntries", Integer.toString(maxNodeEntries));
+		RTree rtree = SpatialIndexFactory.newInstance("rtree.RTree", p);
+
+		Area[] rects = new Area[numRects];
+
+		// first add the rects
+		for ( int i = 0; i < numRects; i++ ) {
+			rects[i] = nextRect();
+			rtree.add(rects[i], i);
+		}
+
+		// now move each one in turn
+		for ( int move = 0; move < numMoves; move++ ) {
+			for ( int i = 0; i < numRects; i++ ) {
+				rtree.delete(rects[i], i);
+				rects[i].set(nextRect());
+				rtree.add(rects[i], i);
+				assertTrue(rtree.checkConsistency());
+			}
+		}
+	}
 }

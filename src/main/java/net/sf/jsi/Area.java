@@ -108,7 +108,6 @@ public class Area
 	 * Determine whether this area intersects the passed area
 	 *
 	 * @param r The area that might intersect this area
-	 *
 	 * @return true if the areas intersect, false if they do not intersect
 	 */
 	public boolean intersects(Area r)
@@ -128,10 +127,10 @@ public class Area
 	 * @param r2MinY minimum Y coordinate of area 2
 	 * @param r2MaxX maximum X coordinate of area 2
 	 * @param r2MaxY maximum Y coordinate of area 2
-	 *
 	 * @return true if r1 intersects r2, false otherwise.
 	 */
-	static public boolean intersects(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX, float r2MaxY)
+	static public boolean intersects(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX,
+		float r2MaxY)
 	{
 		return r1MaxX >= r2MinX && r1MinX <= r2MaxX && r1MaxY >= r2MinY && r1MinY <= r2MaxY;
 	}
@@ -141,7 +140,6 @@ public class Area
 	 * Determine whether this area contains the passed area
 	 *
 	 * @param r The area that might be contained by this area
-	 *
 	 * @return true if this area contains the passed area, false if
 	 *         it does not
 	 */
@@ -162,10 +160,10 @@ public class Area
 	 * @param r2MinY minimum Y coordinate of area 2
 	 * @param r2MaxX maximum X coordinate of area 2
 	 * @param r2MaxY maximum Y coordinate of area 2
-	 *
 	 * @return true if r1 contains r2, false otherwise.
 	 */
-	static public boolean contains(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX, float r2MaxY)
+	static public boolean contains(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX,
+		float r2MaxY)
 	{
 		return r1MaxX >= r2MaxX && r1MinX <= r2MinX && r1MaxY >= r2MaxY && r1MinY <= r2MinY;
 	}
@@ -175,7 +173,6 @@ public class Area
 	 * Determine whether this area is contained by the passed area
 	 *
 	 * @param r The area that might contain this area
-	 *
 	 * @return true if the passed area contains this area, false if
 	 *         it does not
 	 */
@@ -190,7 +187,6 @@ public class Area
 	 * If the area contains the point, the distance is zero.
 	 *
 	 * @param p Point to find the distance to
-	 *
 	 * @return distance beween this area and the passed point.
 	 */
 	public float distance(Spot p)
@@ -229,7 +225,6 @@ public class Area
 	 * @param maxY maximum Y coordinate of area
 	 * @param pX X coordinate of point
 	 * @param pY Y coordinate of point
-	 *
 	 * @return distance beween this area and the passed point.
 	 */
 	static public float distance(float minX, float minY, float maxX, float maxY, float pX, float pY)
@@ -246,7 +241,8 @@ public class Area
 		if ( minX > pX ) {
 			distanceSqX = minX - pX;
 			distanceSqX *= distanceSqX;
-		} else if ( pX > maxX ) {
+		}
+		else if ( pX > maxX ) {
 			distanceSqX = pX - maxX;
 			distanceSqX *= distanceSqX;
 		}
@@ -254,7 +250,8 @@ public class Area
 		if ( minY > pY ) {
 			distanceSqY = minY - pY;
 			distanceSqY *= distanceSqY;
-		} else if ( pY > maxY ) {
+		}
+		else if ( pY > maxY ) {
 			distanceSqY = pY - maxY;
 			distanceSqY *= distanceSqY;
 		}
@@ -268,7 +265,6 @@ public class Area
 	 * If the areas overlap, the distance is zero.
 	 *
 	 * @param r Rectangle to find the distance to
-	 *
 	 * @return distance between this area and the passed area
 	 */
 
@@ -296,7 +292,6 @@ public class Area
 	 * @param r Rectangle to union with this area, in order to
 	 *        compute the difference in area of the union and the
 	 *        original area
-	 *
 	 * @return enlargement
 	 */
 	public float enlargement(Area r)
@@ -342,10 +337,10 @@ public class Area
 	 * @param r2MinY minimum Y coordinate of area 2
 	 * @param r2MaxX maximum X coordinate of area 2
 	 * @param r2MaxY maximum Y coordinate of area 2
-	 *
 	 * @return enlargement
 	 */
-	static public float enlargement(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX, float r2MaxY)
+	static public float enlargement(float r1MinX, float r1MinY, float r1MaxX, float r1MaxY, float r2MinX, float r2MinY, float r2MaxX,
+		float r2MaxY)
 	{
 		float r1Area = (r1MaxX - r1MinX) * (r1MaxY - r1MinY);
 		return enlargement(r1MinX, r1MinY, r1MaxX, r1MaxY, r1Area, r2MinX, r2MinY, r2MaxX, r2MaxY);
@@ -370,7 +365,6 @@ public class Area
 	 * @param minY the minimum Y coordinate of the area
 	 * @param maxX the maximum X coordinate of the area
 	 * @param maxY the maximum Y coordinate of the area
-	 *
 	 * @return The area of the area
 	 */
 	static public float area(float minX, float minY, float maxX, float maxY)
@@ -458,7 +452,6 @@ public class Area
 
 	/**
 	 * Determine whether this area is the same as another object
-	 *
 	 * Note that two areas can be equal but not the same object,
 	 * if they both have the same bounds.
 	 *

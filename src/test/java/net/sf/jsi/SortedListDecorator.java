@@ -21,37 +21,50 @@ package net.sf.jsi;
 import java.util.Collections;
 import java.util.List;
 
+
 /**
  * SortedListDecorator
  */
-public class SortedListDecorator extends ListDecorator {
-   
-  public SortedListDecorator(RTree si) {
-    super(si);
-  }
-   
-  private List<Integer> sort(List<Integer> l) {
-    Collections.sort(l);
-   	return l;
-  }
-  
-  @Override
-  public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance) {
-    return sort(super.nearestN(p, maxCount, furthestDistance));
-  }
-   
-  @Override
-  public List<Integer> nearest(Spot p, float furthestDistance) {
-    return sort(super.nearest(p, furthestDistance));
-  }
-   
-  @Override
-  public List<Integer> intersects(Area r) {
-    return sort(super.intersects(r));
-  }
-  	 	
-  @Override
-  public List<Integer> contains(Area r) {
-  	return sort(super.contains(r));
-  }
+public class SortedListDecorator extends ListDecorator
+{
+
+	public SortedListDecorator(RTree si)
+	{
+		super(si);
+	}
+
+
+	private List<Integer> sort(List<Integer> l)
+	{
+		Collections.sort(l);
+		return l;
+	}
+
+
+	@Override
+	public List<Integer> nearestN(Spot p, int maxCount, float furthestDistance)
+	{
+		return sort(super.nearestN(p, maxCount, furthestDistance));
+	}
+
+
+	@Override
+	public List<Integer> nearest(Spot p, float furthestDistance)
+	{
+		return sort(super.nearest(p, furthestDistance));
+	}
+
+
+	@Override
+	public List<Integer> intersects(Area r)
+	{
+		return sort(super.intersects(r));
+	}
+
+
+	@Override
+	public List<Integer> contains(Area r)
+	{
+		return sort(super.contains(r));
+	}
 }
