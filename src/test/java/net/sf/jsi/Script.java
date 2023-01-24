@@ -54,7 +54,7 @@ public class Script
 	private float canvasSize = 100000F;
 
 
-	private void writeOutput(String outputLine, PrintWriter outputFile, LineNumberReader referenceFile)
+	private static void writeOutput(String outputLine, PrintWriter outputFile, LineNumberReader referenceFile)
 	{
 		try {
 			outputFile.println(outputLine);
@@ -75,7 +75,7 @@ public class Script
 	}
 
 
-	private float quantize(double d, int quantizer)
+	private static float quantize(double d, int quantizer)
 	{
 		if ( quantizer <= 0 ) {
 			return (float)d;
@@ -89,7 +89,7 @@ public class Script
 	}
 
 
-	private Area getRandomRectangle(Random r, float rectangleSize, float canvasSize, int quantizer)
+	private static Area getRandomRectangle(Random r, float rectangleSize, float canvasSize, int quantizer)
 	{
 		float x1 = quantize(r.nextGaussian() * canvasSize, quantizer);
 		float y1 = quantize(r.nextGaussian() * canvasSize, quantizer);

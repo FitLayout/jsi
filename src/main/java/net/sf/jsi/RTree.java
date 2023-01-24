@@ -38,12 +38,10 @@ import java.util.logging.Logger;
  * <li>Low memory requirements.</li>
  * <li>Fast add performance.</li>
  * </ul>
- * </p>
  * <p>
  * The main reason for the high speed of this implementation is the
  * avoidance of the creation of unnecessary objects, mainly achieved by using
  * primitive collections.
- * </p>
  */
 public class RTree extends RTreeBase implements Serializable
 {
@@ -104,17 +102,16 @@ public class RTree extends RTreeBase implements Serializable
 
 
 	/**
-	 * <p>
 	 * Initialize implementation dependent properties of the RTree.
 	 * Currently implemented properties are:
-	 * <ul>
-	 * <li>MaxNodeEntries</li> This specifies the maximum number of entries
+	 * <dl>
+	 * <dt>MaxNodeEntries</dt><dd>This specifies the maximum number of entries
 	 * in a node. The default value is 10, which is used if the property is
-	 * not specified, or is less than 2.
-	 * <li>MinNodeEntries</li> This specifies the minimum number of entries
+	 * not specified, or is less than 2.</dd>
+	 * <dt>MinNodeEntries</dt><dd>This specifies the minimum number of entries
 	 * in a node. The default value is half of the MaxNodeEntries value (rounded
-	 * down), which is used if the property is not specified or is less than 1.
-	 * </ul>
+	 * down), which is used if the property is not specified or is less than 1.</dd>
+	 * </dl>
 	 */
 	public RTree(Properties props)
 	{

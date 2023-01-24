@@ -44,7 +44,7 @@ public class ListDecorator
 		@Override
 		public boolean processArea(int id)
 		{
-			m_list.add(new Integer(id));
+			m_list.add(id);
 			return true;
 		}
 

@@ -1,9 +1,11 @@
-*.class
+.externalToolBuilders
 .metadata
+.settings
 .classpath
 .project
-.settings
 target
+maven-eclipse.xml
+
 *~
 *.swp
 *.log
