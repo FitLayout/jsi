@@ -3,6 +3,7 @@ IMPORTANT
 This is a fork of the orignal project aiming at being a stand-alone release w/o any external dependencies and minimal API.
 - It only uses the java.util.logging API for logging.
 - There is only one callback interface.
+- RTree builder and index to split building and querying apart and make query indexes thread safe.
 - Public API names were changed as to not conflict with other libraries so much.
 
 Note: The original code actually only ever used a very simple int and float based list/stack, so the GNU trove dependency was not necessary.
