@@ -3,7 +3,7 @@
 
 	<groupId>cz.vutbr.fit.layout</groupId>
 	<artifactId>jsi</artifactId>
-	<version>1.1.1.fitlayout-SNAPSHOT</version>
+	<version>1.1.0.fitlayout-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>jsi</name>
@@ -16,6 +16,15 @@
 			<url>https://www.gnu.org/licenses/lgpl-2.1.txt</url>
 		</license>
 	</licenses>
+
+	<developers>
+		<developer>
+			<name>Radek Burget</name>
+			<roles>
+				<role>FitLayout fork maintainer</role>
+			</roles>
+		</developer>
+	</developers>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
