@@ -24,8 +24,8 @@
 	</properties>
 
 	<scm>
-		<connection>scm:git:https://github.com/FitLayout/jsi.git</connection>
-		<developerConnection>scm:git:https://github.com/FitLayout/jsi.git</developerConnection>
+		<connection>scm:git:git@github.com:FitLayout/jsi.git</connection>
+		<developerConnection>scm:git:git@github.com:FitLayout/jsi.git</developerConnection>
 		<url>https://github.com/FitLayout/jsi</url>
 	</scm>
 
